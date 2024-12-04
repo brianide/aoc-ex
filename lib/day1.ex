@@ -1,7 +1,9 @@
-defmodule Day1 do
-  def parse(filename) do
-    File.read!(filename)
-    |> then(&Regex.scan(~r/\d+/, &1))
+defmodule AOC.Day1 do
+  use AOC.Scaffold.Solution, {2024, 1, "Historian Hysteria"}
+  use AOC.Scaffold.SimpleSolver
+
+  def parse(input) do
+    Regex.scan(~r/\d+/, input)
     |> Enum.map(fn a -> List.first(a) |> String.to_integer() end)
     |> then(&parse([], [], &1))
   end
@@ -27,9 +29,3 @@ defmodule Day1 do
     |> Enum.sum()
   end
 end
-
-System.argv()
-|> List.first()
-|> Day1.parse()
-|> then(fn input -> "#{Day1.silver(input)}\n#{Day1.gold(input)}" end)
-|> IO.puts()

@@ -1,13 +1,9 @@
-defmodule Util do
-  def sign(x) when x > 0, do: 1
-  def sign(x) when x < 0, do: -1
-  def sign(_), do: 0
-end
+defmodule AOC.Day2 do
+  use AOC.Scaffold.Solution, {2024, 2, "Red-Nosed Reports"}
+  use AOC.Scaffold.DoubleSolver
 
-defmodule Day2 do
-  def parse(filename) do
-    File.stream!(filename)
-    |> Enum.map(&String.trim/1)
+  def parse(input) do
+    Enum.map(input, &String.trim/1)
     |> Enum.filter(fn s -> String.length(s) > 0 end)
     |> Enum.map(fn s -> String.split(s, ~r/ +/) |> Enum.map(&String.to_integer/1) end)
   end
@@ -41,12 +37,5 @@ defmodule Day2 do
         :else -> {s, g}
       end
     end)
-    |> then(fn {s, g} -> "#{s}\n#{g}" end)
   end
 end
-
-System.argv()
-|> List.first()
-|> Day2.parse()
-|> Day2.solve()
-|> IO.puts()

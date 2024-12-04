@@ -1,7 +1,9 @@
-defmodule Day3 do
-  def parse(filename) do
-    File.read!(filename)
-    |> then(&Regex.scan(~r/(mul|do|don't)(?:\(\)|\((\d+),(\d+)\))/, &1))
+defmodule AOC.Day3 do
+  use AOC.Scaffold.Solution, {2024, 3, "Mull It Over"}
+  use AOC.Scaffold.DoubleSolver
+
+  def parse(input) do
+    Regex.scan(~r/(mul|do|don't)(?:\(\)|\((\d+),(\d+)\))/, input)
     |> Enum.map(&Kernel.tl/1)
     |> Enum.map(fn
       ["do"] -> {:turn, :on}
@@ -16,12 +18,6 @@ defmodule Day3 do
       {:mul, n}, {:on, s, g} -> {:on, s + n, g + n}
       {:mul, n}, {:off, s, g} -> {:off, s + n, g}
     end)
-    |> then(fn {_, s, g} -> "#{s}\n#{g}" end)
+    |> then(fn {_, s, g} -> {s, g} end)
   end
 end
-
-System.argv()
-|> List.first()
-|> Day3.parse()
-|> Day3.solve()
-|> IO.puts()
