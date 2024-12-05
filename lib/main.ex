@@ -8,6 +8,7 @@ defmodule AOC.Main do
     AOC.Day1,
     AOC.Day2,
     AOC.Day3,
+    AOC.Day4,
   ]
 
   def main, do: main(System.argv())
