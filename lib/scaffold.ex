@@ -15,7 +15,7 @@ defmodule AOC.Scaffold do
 
       quote do
         def _solve(path, part, args \\ []) do
-          input = File.read!(path)
+          input = File.read!(path) |> String.trim()
 
           Enum.map(part, fn
             :silver -> apply(__MODULE__, unquote(silver_fn), [input])
@@ -38,7 +38,7 @@ defmodule AOC.Scaffold do
 
       quote do
         def _solve(path, part, args \\ []) do
-          input = apply(__MODULE__, unquote(parse_fn), [File.read!(path)])
+          input = apply(__MODULE__, unquote(parse_fn), [File.read!(path) |> String.trim()])
 
           Enum.map(part, fn
             :silver -> apply(__MODULE__, unquote(silver_fn), [input])
@@ -59,7 +59,7 @@ defmodule AOC.Scaffold do
 
       quote do
         def _solve(path, part, args \\ []) do
-          input = apply(__MODULE__, unquote(opts[:parse]), [File.read!(path)])
+          input = apply(__MODULE__, unquote(opts[:parse]), [File.read!(path) |> String.trim()])
           {ss, gs} = apply(__MODULE__, unquote(opts[:solve]), [input])
 
           Enum.map(part, fn
