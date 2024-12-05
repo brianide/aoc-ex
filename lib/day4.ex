@@ -24,7 +24,7 @@ defmodule AOC.Day4 do
   defp check_crossword(grid, r, c) do
     if grid.cells[{r, c}] == "X" do
       for {dr, dc} <- @dirs, reduce: 0 do
-        acc -> acc + check_crossword(grid, r + dr, c + dc, dr, dc, ["M", "A", "S"])
+        acc -> acc + check_crossword(grid, r + dr, c + dc, dr, dc, ~w(M A S))
       end
     else
       0

@@ -3,7 +3,7 @@ defmodule AOC.Day5 do
   @behaviour AOC.Scaffold.Solution
   def solution_info, do: {2024, 5, "Print Queue"}
 
-  use AOC.Scaffold.ChainSolver
+  use AOC.Scaffold.DoubleSolver
 
   def parse(input) do
     [order, updates] = String.split(input, "\n\n")
@@ -20,32 +20,14 @@ defmodule AOC.Day5 do
     {order, updates}
   end
 
-  defp do_check_update([_], order), do: :ok
-  defp do_check_update([{lt, li} | rest], order) do
+  defp check_update([_], _), do: :ok
+  defp check_update([{lt, li} | rest], order) do
     Stream.map(rest, fn {rt, ri} -> {{lt, rt}, {li, ri}} end)
     |> Enum.find(fn {p, _} -> not MapSet.member?(order, p) end)
     |> case do
-      nil -> do_check_update(rest, order)
+      nil -> check_update(rest, order)
       {_, idx} -> {:error, idx}
     end
-  end
-
-  defp check_update(update, order) do
-    Enum.with_index(update)
-    |> do_check_update(order)
-  end
-
-  defp get_middle_elem(update) do
-    update
-    |> List.to_tuple()
-    |> then(&elem(&1, div(tuple_size(&1), 2)))
-  end
-
-  def silver({order, updates}) do
-    updates
-    |> Stream.filter(fn u -> check_update(u, order) == :ok end)
-    |> Stream.map(&get_middle_elem/1)
-    |> Enum.sum()
   end
 
   defp patch_update(update, {li, ri}) do
@@ -57,18 +39,28 @@ defmodule AOC.Day5 do
   end
 
   defp correct_update(update, order, patched \\ false) do
-    case check_update(update, order) do
+    Enum.with_index(update)
+    |> check_update(order)
+    |> case do
       :ok -> {update, patched}
       {:error, p} -> patch_update(update, p) |> correct_update(order, true)
     end
   end
 
-  def gold({order, updates}) do
+  defp get_middle_elem(update) do
+    update
+    |> List.to_tuple()
+    |> then(&elem(&1, div(tuple_size(&1), 2)))
+  end
+
+  def solve({order, updates}) do
     updates
     |> Stream.map(&correct_update(&1, order))
-    |> Stream.filter(&elem(&1, 1))
-    |> Stream.map(fn {update, _} -> get_middle_elem(update) end)
-    |> Enum.sum()
+    |> Stream.map(fn {update, patched} -> {get_middle_elem(update), patched} end)
+    |> Enum.reduce({0, 0}, fn
+      {n, false}, {s, g} -> {s + n, g}
+      {n, true}, {s, g} -> {s, g + n}
+    end)
   end
 
 end
