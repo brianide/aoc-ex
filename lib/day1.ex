@@ -1,6 +1,8 @@
 defmodule AOC.Day1 do
-  use AOC.Scaffold.Solution, {2024, 1, "Historian Hysteria"}
-  use AOC.Scaffold.SimpleSolver
+  @behaviour AOC.Scaffold.Solution
+  def solution_info, do: {2024, 1, "Historian Hysteria"}
+
+  use AOC.Scaffold.ChainSolver
 
   def parse(input) do
     Regex.scan(~r/\d+/, input)

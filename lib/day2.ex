@@ -1,9 +1,12 @@
 defmodule AOC.Day2 do
-  use AOC.Scaffold.Solution, {2024, 2, "Red-Nosed Reports"}
+  @behaviour AOC.Scaffold.Solution
+  def solution_info, do: {2024, 2, "Red-Nosed Reports"}
+
   use AOC.Scaffold.DoubleSolver
 
   def parse(input) do
-    Enum.map(input, &String.trim/1)
+    String.split(input, "\n")
+    |> Enum.map(&String.trim/1)
     |> Enum.filter(fn s -> String.length(s) > 0 end)
     |> Enum.map(fn s -> String.split(s, ~r/ +/) |> Enum.map(&String.to_integer/1) end)
   end

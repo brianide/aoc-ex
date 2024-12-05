@@ -1,5 +1,7 @@
 defmodule AOC.Day3 do
-  use AOC.Scaffold.Solution, {2024, 3, "Mull It Over"}
+  @behaviour AOC.Scaffold.Solution
+  def solution_info, do: {2024, 3, "Mull It Over"}
+
   use AOC.Scaffold.DoubleSolver
 
   def parse(input) do
