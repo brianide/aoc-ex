@@ -11,6 +11,7 @@ defmodule AOC.Day5 do
     order =
       String.split(order, "\n")
       |> Enum.map(fn s -> String.split(s, "|") |> Enum.map(&String.to_integer/1) |> List.to_tuple() end)
+      |> MapSet.new()
 
     updates =
       String.split(updates, "\n")
@@ -19,29 +20,55 @@ defmodule AOC.Day5 do
     {order, updates}
   end
 
-  defp positions(update), do: positions([], update)
-  defp positions(acc, [_]), do: acc
-  defp positions(acc, [lt | rest]) do
-    for rt <- rest, reduce: acc do
-      acc -> [{lt, rt} | acc]
+  defp do_check_update([_], order), do: :ok
+  defp do_check_update([{lt, li} | rest], order) do
+    Stream.map(rest, fn {rt, ri} -> {{lt, rt}, {li, ri}} end)
+    |> Enum.find(fn {p, _} -> not MapSet.member?(order, p) end)
+    |> case do
+      nil -> do_check_update(rest, order)
+      {_, idx} -> {:error, idx}
     end
-    |> positions(rest)
   end
 
-  defp check_update(update, order), do: positions(update) |> Enum.all?(&MapSet.member?(order, &1))
+  defp check_update(update, order) do
+    Enum.with_index(update)
+    |> do_check_update(order)
+  end
+
+  defp get_middle_elem(update) do
+    update
+    |> List.to_tuple()
+    |> then(&elem(&1, div(tuple_size(&1), 2)))
+  end
 
   def silver({order, updates}) do
-    order = MapSet.new(order)
-
     updates
-    |> Stream.filter(&check_update(&1, order))
-    |> Stream.map(&List.to_tuple/1)
-    |> Stream.map(&elem(&1, div(tuple_size(&1), 2)))
+    |> Stream.filter(fn u -> check_update(u, order) == :ok end)
+    |> Stream.map(&get_middle_elem/1)
     |> Enum.sum()
   end
 
-  def gold(_input) do
-    ""
+  defp patch_update(update, {li, ri}) do
+    update = List.to_tuple(update)
+    update
+    |> put_elem(li, elem(update, ri))
+    |> put_elem(ri, elem(update, li))
+    |> Tuple.to_list()
+  end
+
+  defp correct_update(update, order, patched \\ false) do
+    case check_update(update, order) do
+      :ok -> {update, patched}
+      {:error, p} -> patch_update(update, p) |> correct_update(order, true)
+    end
+  end
+
+  def gold({order, updates}) do
+    updates
+    |> Stream.map(&correct_update(&1, order))
+    |> Stream.filter(&elem(&1, 1))
+    |> Stream.map(fn {update, _} -> get_middle_elem(update) end)
+    |> Enum.sum()
   end
 
 end
