@@ -46,8 +46,33 @@ defmodule AOC.Y2024.Day6 do
     |> inspect()
   end
 
-  def gold(_input) do
-    ""
+  def check_loop(setup), do: check_loop(setup, setup.init, :north, MapSet.new())
+  def check_loop(setup, {r, c}, dir, seen) do
+    {dr, dc} = offset(dir)
+    {nr, nc} = {r + dr, c + dc}
+
+    seen = MapSet.put(seen, {r, c, dir})
+
+    cond do
+      MapSet.member?(seen, {nr, nc, dir}) ->
+        true
+      MapSet.member?(setup.obs, {nr, nc}) ->
+        check_loop(setup, {r, c}, turn(dir), seen)
+      outside?(setup, nr, nc) ->
+        false
+      :else ->
+        check_loop(setup, {nr, nc}, dir, seen)
+    end
+  end
+
+  def gold(setup) do
+    walk(setup)
+    |> MapSet.delete(setup.init)
+    |> MapSet.to_list()
+    |> Stream.map(fn p -> %{setup | obs: MapSet.put(setup.obs, p)} end)
+    |> Stream.filter(&check_loop/1)
+    |> Enum.count()
+    |> inspect()
   end
 
   def solver, do: AOC.Scaffold.chain_solver(&parse/1, &silver/1, &gold/1)
