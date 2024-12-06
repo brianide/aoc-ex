@@ -1,0 +1,58 @@
+#!/usr/bin/env -S deno run --unstable -A
+
+async function exists(path) {
+    try {
+        await Deno.stat(path);
+        return true;
+    }
+    catch(_) {
+        return false;
+    }
+}
+
+function wait(millis) {
+    return new Promise(res => setTimeout(() => res(), millis));
+}
+
+const [year, days] = Deno.args;
+const cookie = await Deno.readTextFile(".cookie.dat");
+
+// Make directories if they're not already in place
+await Deno.mkdir(`src/${year}`, { recursive: true });
+await Deno.mkdir(`input/${year}/real`, { recursive: true });
+
+for (const day of days.split(",").map(n => +n)) {
+    // Get problem name
+    const page = await fetch(`https://adventofcode.com/${year}/day/${day}`).then(r => r.text());
+    const name = /<h2>--- Day \d+: (.+) ---<\/h2>/.exec(page)[1];
+    console.log(`Getting problem name`);
+
+    // Make solution file
+    const fileText = (await Deno.readTextFile("day_template.exs")).replace(/![A-Z]+?!/g, k => {
+        return { year, day, name }[k.slice(1, -1).toLowerCase()];
+    });
+    await Deno.writeTextFile(`lib/Y${year}/day${day}.ex`, fileText);
+    console.log(`Making file for solution`);
+
+    // Add module to index
+    const projText = (await Deno.readTextFile(`lib/Y${year}/index.ex`)).split("\n");
+    projText.splice(projText.findIndex(l => l.includes("## NEXT ##")), 0, `    {AOC.Y${year}.Day${day}, "${name}"}`);
+    await Deno.writeTextFile(`lib/Y${year}/index.ex`, projText.join("\n"));
+    await wait(1500);
+    console.log(`Adding module to index`);
+
+    // Get problem input
+    const dest = `input/real/${year}/day${day}.txt`;
+    if (await exists(dest))
+        continue;
+    console.log(`Pulling input`);
+
+    const text = await fetch(`https://adventofcode.com/${year}/day/${day}/input`, {
+        headers: {
+            Cookie: `session=${cookie}`
+        }
+    }).then(r => r.text());
+    await Deno.writeTextFile(dest, text);
+
+    await wait(1500);
+}
