@@ -1,9 +1,4 @@
-defmodule AOC.Day5 do
-
-  @behaviour AOC.Scaffold.Solution
-  def solution_info, do: {2024, 5, "Print Queue"}
-
-  use AOC.Scaffold.DoubleSolver
+defmodule AOC.Y2024.Day5 do
 
   def parse(input) do
     [order, updates] = String.split(input, "\n\n")
@@ -62,5 +57,7 @@ defmodule AOC.Day5 do
       {n, true}, {s, g} -> {s, g + n}
     end)
   end
+
+  def solver, do: AOC.Scaffold.double_solver(&parse/1, &solve/1)
 
 end

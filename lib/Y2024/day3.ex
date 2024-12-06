@@ -1,8 +1,4 @@
-defmodule AOC.Day3 do
-  @behaviour AOC.Scaffold.Solution
-  def solution_info, do: {2024, 3, "Mull It Over"}
-
-  use AOC.Scaffold.DoubleSolver
+defmodule AOC.Y2024.Day3 do
 
   def parse(input) do
     Regex.scan(~r/(mul|do|don't)(?:\(\)|\((\d+),(\d+)\))/, input)
@@ -22,4 +18,7 @@ defmodule AOC.Day3 do
     end)
     |> then(fn {_, s, g} -> {s, g} end)
   end
+
+  def solver, do: AOC.Scaffold.double_solver(&parse/1, &solve/1)
+
 end

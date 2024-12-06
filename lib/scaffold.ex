@@ -1,74 +1,52 @@
 defmodule AOC.Scaffold do
 
-  defmodule Solution do
-    @type solution_spec() :: {integer(), integer(), String.t()}
-    @callback solution_info :: solution_spec()
+  defmodule Solver do
+    @callback solver(args :: list(String.t())) :: String.t()
   end
 
-  defmodule SimpleSolver do
-    @moduledoc """
-    Creates a solver where each part performs its own parsing.
-    """
-    defmacro __using__(opts) do
-      silver_fn = Keyword.get(opts, :silver, :silver)
-      gold_fn = Keyword.get(opts, :gold, :gold)
+  defp get_part(str) when str in ["s", "silver"], do: [:silver]
+  defp get_part(str) when str in ["g", "gold"], do: [:gold]
+  defp get_part(str) when str in ["b", "both"], do: [:silver, :gold]
 
-      quote do
-        def _solve(path, part, args \\ []) do
-          input = File.read!(path) |> String.trim()
+  @doc "Creates a solver where each part performs its own parsing."
+  def simple_solver(silver, gold) do
+    fn [parts, file] ->
+      input = File.read!(file) |> String.trim()
 
-          Enum.map(part, fn
-            :silver -> apply(__MODULE__, unquote(silver_fn), [input])
-            :gold -> apply(__MODULE__, unquote(gold_fn), [input])
-          end)
-          |> Enum.join("\n")
-        end
-      end
+      get_part(parts)
+      |> Stream.map(fn
+        :silver -> silver.(input)
+        :gold -> gold.(input)
+      end)
+      |> Enum.join("\n")
     end
   end
 
-  defmodule ChainSolver do
-    @moduledoc """
-    Creates a solver where both parts receive identical input from a common parsing function.
-    """
-    defmacro __using__(opts) do
-      parse_fn = Keyword.get(opts, :parse, :parse)
-      silver_fn = Keyword.get(opts, :silver, :silver)
-      gold_fn = Keyword.get(opts, :gold, :gold)
+  @doc "Creates a solver where both parts receive identical input from a common parsing function."
+  def chain_solver(parse, silver, gold) do
+    fn [parts, file] ->
+      input = File.read!(file) |> String.trim() |> parse.()
 
-      quote do
-        def _solve(path, part, args \\ []) do
-          input = apply(__MODULE__, unquote(parse_fn), [File.read!(path) |> String.trim()])
-
-          Enum.map(part, fn
-            :silver -> apply(__MODULE__, unquote(silver_fn), [input])
-            :gold -> apply(__MODULE__, unquote(gold_fn), [input])
-          end)
-          |> Enum.join("\n")
-        end
-      end
+      get_part(parts)
+      |> Stream.map(fn
+        :silver -> silver.(input)
+        :gold -> gold.(input)
+      end)
+      |> Enum.join("\n")
     end
   end
 
-  defmodule DoubleSolver do
-    @moduledoc """
-    Creates a solver where both parts are solved by the same function.
-    """
-    defmacro __using__(opts) do
-      opts = Keyword.merge([parse: :parse, solve: :solve], opts)
+  @doc "Creates a solver where both parts are solved by the same function."
+  def double_solver(parse, solve) do
+    fn [parts, file] ->
+      input = File.read!(file) |> String.trim() |> parse.() |> solve.()
 
-      quote do
-        def _solve(path, part, args \\ []) do
-          input = apply(__MODULE__, unquote(opts[:parse]), [File.read!(path) |> String.trim()])
-          {ss, gs} = apply(__MODULE__, unquote(opts[:solve]), [input])
-
-          Enum.map(part, fn
-            :silver -> ss
-            :gold -> gs
-          end)
-          |> Enum.join("\n")
-        end
-      end
+      get_part(parts)
+      |> Stream.map(fn
+        :silver -> elem(input, 0)
+        :gold -> elem(input, 1)
+      end)
+      |> Enum.join("\n")
     end
   end
 

@@ -1,9 +1,4 @@
-defmodule AOC.Day4 do
-
-  @behaviour AOC.Scaffold.Solution
-  def solution_info(), do: {2024, 4, "Ceres Search"}
-
-  use AOC.Scaffold.ChainSolver
+defmodule AOC.Y2024.Day4 do
 
   def parse(input) do
     String.graphemes(input)
@@ -73,5 +68,7 @@ defmodule AOC.Day4 do
           acc -> if grid.cells[{r, c}] == "A", do: acc + check_mas(grid, r, c), else: acc
         end
   end
+
+  def solver, do: AOC.Scaffold.chain_solver(&parse/1, &silver/1, &gold/1)
 
 end

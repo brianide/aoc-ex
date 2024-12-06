@@ -1,8 +1,4 @@
-defmodule AOC.Day2 do
-  @behaviour AOC.Scaffold.Solution
-  def solution_info, do: {2024, 2, "Red-Nosed Reports"}
-
-  use AOC.Scaffold.DoubleSolver
+defmodule AOC.Y2024.Day2 do
 
   def parse(input) do
     String.split(input, "\n")
@@ -41,4 +37,7 @@ defmodule AOC.Day2 do
       end
     end)
   end
+
+  def solver, do: AOC.Scaffold.double_solver(&parse/1, &solve/1)
+
 end

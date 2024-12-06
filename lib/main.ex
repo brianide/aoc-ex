@@ -1,31 +1,17 @@
 defmodule AOC.Main do
 
-  defp get_part(str) when str in ["s", "silver"], do: [:silver]
-  defp get_part(str) when str in ["g", "gold"], do: [:gold]
-  defp get_part(str) when str in ["b", "both"], do: [:silver, :gold]
-
-  defp solutions, do: [
-    AOC.Day1,
-    AOC.Day2,
-    AOC.Day3,
-    AOC.Day4,
-    AOC.Day5,
-  ]
+  defp solutions, do: %{
+    2024 => AOC.Y2024.Index.solutions()
+  }
 
   def main, do: main(System.argv())
   def main(args) do
-    [year, day, part, infile | _] = args
-    year = String.to_integer(year)
-    day = String.to_integer(day)
-    part = get_part(part)
+    [year, day | rest] = args
 
-    Enum.find(solutions(), fn mod ->
-      case apply(mod, :solution_info, []) do
-        {^year, ^day, _} -> true
-        _ -> false
-      end
-    end)
-    |> apply(:_solve, [infile, part])
-    |> IO.puts()
+    solutions()
+    |> Map.get(String.to_integer(year))
+    |> Enum.at(String.to_integer(day) - 1)
+    |> then(fn {mod, _} -> apply(mod, :solver, []).(rest) end)
+    |> IO.puts();
   end
 end
