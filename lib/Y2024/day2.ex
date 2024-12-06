@@ -13,7 +13,7 @@ defmodule AOC.Y2024.Day2 do
 
   def check(input), do: check(:unset, input)
   def check(order, [a, b | rest]) do
-    case {order, abs(b - a), Util.sign(b - a)} do
+    case {order, abs(b - a), AOC.Util.sign(b - a)} do
       {_, v, _} when v < 1 or v > 3 -> false
       {:unset, _, s} when s > 0 -> check(:asc, [b | rest])
       {:unset, _, s} when s < 0 -> check(:desc, [b | rest])

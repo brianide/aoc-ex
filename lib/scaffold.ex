@@ -9,12 +9,14 @@ defmodule AOC.Scaffold do
     fn [parts, path] ->
       input = File.read!("#{path}/#{year}/day#{day}.txt") |> String.trim()
 
-      get_part(parts)
-      |> Stream.map(fn
-        :silver -> silver.(input)
-        :gold -> gold.(input)
+      :timer.tc(fn ->
+        get_part(parts)
+        |> Stream.map(fn
+          :silver -> silver.(input)
+          :gold -> gold.(input)
+        end)
+        |> Enum.join("\n")
       end)
-      |> Enum.join("\n")
     end
   end
 
@@ -23,12 +25,15 @@ defmodule AOC.Scaffold do
     fn [parts, path] ->
       input = File.read!("#{path}/#{year}/day#{day}.txt") |> String.trim() |> parse.()
 
-      get_part(parts)
-      |> Stream.map(fn
-        :silver -> silver.(input)
-        :gold -> gold.(input)
+      :timer.tc(fn ->
+        get_part(parts)
+        |> Stream.map(fn
+          :silver -> silver.(input)
+          :gold -> gold.(input)
+        end)
+        |> Enum.join("\n")
       end)
-      |> Enum.join("\n")
+
     end
   end
 
@@ -37,12 +42,14 @@ defmodule AOC.Scaffold do
     fn [parts, path] ->
       input = File.read!("#{path}/#{year}/day#{day}.txt") |> String.trim() |> parse.() |> solve.()
 
-      get_part(parts)
-      |> Stream.map(fn
-        :silver -> elem(input, 0)
-        :gold -> elem(input, 1)
+      :timer.tc(fn ->
+        get_part(parts)
+        |> Stream.map(fn
+          :silver -> elem(input, 0)
+          :gold -> elem(input, 1)
+        end)
+        |> Enum.join("\n")
       end)
-      |> Enum.join("\n")
     end
   end
 

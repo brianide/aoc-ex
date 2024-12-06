@@ -12,6 +12,6 @@ defmodule AOC.Main do
     |> Map.get(String.to_integer(year))
     |> Enum.at(String.to_integer(day) - 1)
     |> then(fn {mod, _} -> apply(mod, :solver, []).(rest) end)
-    |> IO.puts();
+    |> then(fn {time, res} -> IO.puts("#{res}\n\nRan in #{time / 1000}ms") end)
   end
 end
