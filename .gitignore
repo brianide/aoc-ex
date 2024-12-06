@@ -11,3 +11,4 @@ erl_crash.dump
 input/
 .cookie.dat
 aoc_ex
+.vscode

@@ -18,8 +18,8 @@ const [year, days] = Deno.args;
 const cookie = await Deno.readTextFile(".cookie.dat");
 
 // Make directories if they're not already in place
-await Deno.mkdir(`src/${year}`, { recursive: true });
-await Deno.mkdir(`input/${year}/real`, { recursive: true });
+await Deno.mkdir(`lib/Y${year}`, { recursive: true });
+await Deno.mkdir(`input/real/${year}`, { recursive: true });
 
 for (const day of days.split(",").map(n => +n)) {
     // Get problem name
@@ -36,7 +36,7 @@ for (const day of days.split(",").map(n => +n)) {
 
     // Add module to index
     const projText = (await Deno.readTextFile(`lib/Y${year}/index.ex`)).split("\n");
-    projText.splice(projText.findIndex(l => l.includes("## NEXT ##")), 0, `    {AOC.Y${year}.Day${day}, "${name}"}`);
+    projText.splice(projText.findIndex(l => l.includes("## NEXT ##")), 0, `    {AOC.Y${year}.Day${day}, "${name}"},`);
     await Deno.writeTextFile(`lib/Y${year}/index.ex`, projText.join("\n"));
     await wait(1500);
     console.log(`Adding module to index`);
