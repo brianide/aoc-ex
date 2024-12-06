@@ -1,4 +1,8 @@
 defmodule AOC.Y2024.Day5 do
+  @moduledoc title: "Print Queue"
+  @moduledoc url: "https://adventofcode.com/2024/day/5"
+
+  def solver, do: AOC.Scaffold.double_solver(&parse/1, &solve/1)
 
   def parse(input) do
     [order, updates] = String.split(input, "\n\n")
@@ -57,7 +61,5 @@ defmodule AOC.Y2024.Day5 do
       {n, true}, {s, g} -> {s, g + n}
     end)
   end
-
-  def solver, do: AOC.Scaffold.double_solver(&parse/1, &solve/1)
 
 end

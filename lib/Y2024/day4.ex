@@ -1,4 +1,8 @@
 defmodule AOC.Y2024.Day4 do
+  @moduledoc title: "Ceres Search"
+  @moduledoc url: "https://adventofcode.com/2024/day/4"
+
+  def solver, do: AOC.Scaffold.chain_solver(&parse/1, &silver/1, &gold/1)
 
   def parse(input) do
     String.graphemes(input)
@@ -68,7 +72,5 @@ defmodule AOC.Y2024.Day4 do
           acc -> if grid.cells[{r, c}] == "A", do: acc + check_mas(grid, r, c), else: acc
         end
   end
-
-  def solver, do: AOC.Scaffold.chain_solver(&parse/1, &silver/1, &gold/1)
 
 end

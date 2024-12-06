@@ -1,4 +1,8 @@
 defmodule AOC.Y2024.Day6 do
+  @moduledoc title: "Guard Gallivant"
+  @moduledoc url: "https://adventofcode.com/2024/day/6"
+
+  def solver, do: AOC.Scaffold.chain_solver(&parse/1, &silver/1, &gold/1)
 
   def parse(input) do
     String.graphemes(input)
@@ -74,7 +78,5 @@ defmodule AOC.Y2024.Day6 do
     |> Enum.count()
     |> inspect()
   end
-
-  def solver, do: AOC.Scaffold.chain_solver(&parse/1, &silver/1, &gold/1)
 
 end

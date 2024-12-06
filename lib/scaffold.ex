@@ -1,9 +1,5 @@
 defmodule AOC.Scaffold do
 
-  defmodule Solver do
-    @callback solver(args :: list(String.t())) :: String.t()
-  end
-
   defp get_part(str) when str in ["s", "silver"], do: [:silver]
   defp get_part(str) when str in ["g", "gold"], do: [:gold]
   defp get_part(str) when str in ["b", "both"], do: [:silver, :gold]
