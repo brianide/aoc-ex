@@ -1,4 +1,4 @@
-defmodule AOC.Main do
+defmodule AOC do
 
   defp solutions, do: %{
     2024 => AOC.Y2024.Index.solutions()
