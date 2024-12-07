@@ -4,26 +4,39 @@ defmodule AOC.Y2024.Day7 do
 
   def solver, do: AOC.Scaffold.chain_solver(2024, 7, &parse/1, &silver/1, &gold/1)
 
+  defp parse_line(line) do
+    Regex.scan(~r/\d+/, line)
+    |> Stream.map(&List.first/1)
+    |> Enum.map(&String.to_integer/1)
+    |> case do [head | rest] -> {head, rest} end
+  end
+
   def parse(input) do
     String.split(input, "\n")
-    |> Enum.map(fn s -> Regex.scan(~r/\d+/, s) |> Enum.map(&(List.first(&1) |> String.to_integer())) |> then(fn [h | r] -> {h, r} end) end)
+    |> Enum.map(&parse_line/1)
   end
 
-  def concat(a, b), do: String.to_integer("#{a}#{b}")
-
-  def search(targ, terms, do_cat), do: search(targ, 0, terms, do_cat)
-  def search(targ, total, [], _) when total == targ, do: 1
-  def search(targ, total, _, _) when total > targ, do: 0
-  def search(_, _, [], _), do: 0
-  def search(targ, total, [h | rest], do_cat) do
-    search(targ, total + h, rest, do_cat) + search(targ, total * h, rest, do_cat) + (if do_cat, do: search(targ, concat(total, h), rest, do_cat), else: 0)
+  defp concat(a, b) do
+    a * 10 ** (:math.log10(b + 1) |> ceil()) + b
   end
 
-  def solve(input, do_cat) do
+  defp search(targ, terms, do_cat), do: search(targ, 0, terms, do_cat)
+  defp search(targ, total, [], _) when total == targ, do: true
+  defp search(targ, total, _, _) when total > targ, do: false
+  defp search(_, _, [], _), do: false
+  defp search(targ, total, [h | rest], do_cat) do
+    cond do
+      search(targ, total + h, rest, do_cat) -> true
+      search(targ, total * h, rest, do_cat) -> true
+      do_cat && search(targ, concat(total, h), rest, do_cat) -> true
+      :else -> false
+    end
+  end
+
+  defp solve(input, do_cat) do
     input
-    |> Stream.filter(fn {targ, terms} -> search(targ, terms, do_cat) > 0 end)
-    |> Stream.map(fn {v, _} -> v end)
-    |> Enum.sum()
+    |> Task.async_stream(fn {targ, terms} -> search(targ, terms, do_cat) && targ || 0 end)
+    |> Enum.reduce(0, fn {:ok, n}, acc -> acc + n end)
   end
 
   def silver(input), do: solve(input, false)
