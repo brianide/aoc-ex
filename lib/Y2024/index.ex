@@ -5,7 +5,8 @@ defmodule AOC.Y2024.Index do
     {AOC.Y2024.Day3, "Mull It Over"},
     {AOC.Y2024.Day4, "Ceres Search"},
     {AOC.Y2024.Day5, "Print Queue"},
-    {AOC.Y2024.Day6, "Guard Gallivant"}
+    {AOC.Y2024.Day6, "Guard Gallivant"},
+    {AOC.Y2024.Day7, "Bridge Repair"},
     ## NEXT ##
   ]
 end
