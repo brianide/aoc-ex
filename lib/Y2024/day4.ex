@@ -10,7 +10,7 @@ defmodule AOC.Y2024.Day4 do
       "\n", {r, c, _, cells} -> {r + 1, 0, c, cells}
       l, {r, c, w, cells} -> {r, c + 1, w, Map.put(cells, {r, c}, l)}
     end)
-    |> then(fn {r, _, w, cells} -> %{cells: cells, rows: r, cols: w} end)
+    |> case do {r, _, w, cells} -> %{cells: cells, rows: r, cols: w} end
   end
 
   ### Silver
@@ -23,19 +23,19 @@ defmodule AOC.Y2024.Day4 do
   defp check_crossword(grid, r, c) do
     if grid.cells[{r, c}] == "X" do
       for {dr, dc} <- @dirs, reduce: 0 do
-        acc -> acc + check_crossword(grid, r + dr, c + dc, dr, dc, ~w(M A S))
+        acc -> acc + check_crossword(grid, {r + dr, c + dc}, {dr, dc}, ~w(M A S))
       end
     else
       0
     end
   end
 
-  defp check_crossword(_, _, _, _, _, []), do: 1
-  defp check_crossword(grid, r, c, dr, dc, [letter | rest]) do
+  defp check_crossword(_, _, _, []), do: 1
+  defp check_crossword(grid, {r, c}, {dr, dc}, [letter | rest]) do
     cond do
       r < 0 || r == grid.rows -> 0
       c < 0 || c == grid.cols -> 0
-      grid.cells[{r, c}] == letter -> check_crossword(grid, r + dr, c + dc, dr, dc, rest)
+      grid.cells[{r, c}] == letter -> check_crossword(grid, {r + dr, c + dc}, {dr, dc}, rest)
       :else -> 0
     end
   end

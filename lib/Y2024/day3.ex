@@ -6,7 +6,7 @@ defmodule AOC.Y2024.Day3 do
 
   def parse(input) do
     Regex.scan(~r/(mul|do|don't)(?:\(\)|\((\d+),(\d+)\))/, input)
-    |> Enum.map(&Kernel.tl/1)
+    |> Stream.map(&Kernel.tl/1)
     |> Enum.map(fn
       ["do"] -> {:turn, :on}
       ["don't"] -> {:turn, :off}
