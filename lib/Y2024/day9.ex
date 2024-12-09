@@ -64,7 +64,6 @@ defmodule AOC.Y2024.Day9 do
       {:file, id, ind, len}, acc -> for n <- ind..(ind + len - 1)//1, reduce: acc, do: (acc -> acc + n * id)
       _, acc -> acc
     end)
-    |> inspect(charlists: :as_lists)
   end
 
 end
