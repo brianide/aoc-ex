@@ -9,6 +9,7 @@ defmodule AOC.Y2024.Index do
     {AOC.Y2024.Day7, "Bridge Repair"},
     {AOC.Y2024.Day8, "Resonant Collinearity"},
     {AOC.Y2024.Day9, "Disk Fragmenter"},
+    {AOC.Y2024.Day10, "Hoof It"},
     ## NEXT ##
   ]
 end
