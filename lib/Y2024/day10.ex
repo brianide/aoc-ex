@@ -2,7 +2,7 @@ defmodule AOC.Y2024.Day10 do
   @moduledoc title: "Hoof It"
   @moduledoc url: "https://adventofcode.com/2024/day/10"
 
-  def solver, do: AOC.Scaffold.chain_solver(2024, 10, &parse/1, &silver/1, &gold/1)
+  def solver, do: AOC.Scaffold.double_solver(2024, 10, &parse/1, &solve/1)
 
   def parse(input) do
     String.graphemes(input)
@@ -15,30 +15,28 @@ defmodule AOC.Y2024.Day10 do
   end
 
   def neighbors(data, {r, c}) do
-    [{0, 1}, {0, -1}, {1, 0}, {-1, 0}]
-    |> Stream.map(fn {dr, dc} -> {r + dr, c + dc} end)
-    |> Stream.filter(fn {r, c} -> r >= 0 && r < data.rows && c >= 0 && c < data.rows end)
-    |> Stream.map(&{&1, Map.fetch!(data.cells, &1)})
-    |> Enum.to_list()
+    for {dr, dc} <- [{0, 1}, {0, -1}, {1, 0}, {-1, 0}],
+        r = r + dr,
+        c = c + dc,
+        r >= 0 && r < data.rows,
+        c >= 0 && c < data.cols,
+        do: {{r, c}, Map.fetch!(data.cells, {r, c})}
   end
 
   defp traverse(_, pos, 9), do: {1, MapSet.new([pos])}
   defp traverse(data, pos, alt) do
-    neighbors(data, pos)
-    |> Stream.filter(&(elem(&1, 1) === alt + 1))
-    |> Stream.map(&elem(&1, 0))
-    |> Stream.map(&traverse(data, &1, alt + 1))
-    |> Enum.reduce({0, MapSet.new()}, fn {total, merged}, {n, reached} -> {total + n, MapSet.union(merged, reached)} end)
+    for {{r, c}, n_alt} <- neighbors(data, pos),
+        n_alt === alt + 1,
+        {trails, reached} = traverse(data, {r, c}, n_alt),
+        reduce: {0, MapSet.new()},
+        do: ({total, merged} -> {total + trails, MapSet.union(merged, reached)})
   end
 
-  def silver(data) do
-    Stream.map(data.heads, fn pos -> traverse(data, pos, 0) end)
-    |> Stream.map(fn {_, reached} -> MapSet.size(reached) end)
-    |> Enum.sum()
-  end
-
-  def gold(_input) do
-    "Not implemented"
+  def solve(data) do
+    for head <- data.heads,
+        {trails, reached} = traverse(data, head, 0),
+        reduce: {0, 0},
+        do: ({s, g} -> {s + MapSet.size(reached), g + trails})
   end
 
 end
