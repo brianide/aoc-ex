@@ -10,7 +10,7 @@ defmodule AOC.Y2024.Day4 do
       "\n", {r, c, _, cells} -> {r + 1, 0, c, cells}
       l, {r, c, w, cells} -> {r, c + 1, w, Map.put(cells, {r, c}, l)}
     end)
-    |> case do {r, _, w, cells} -> %{cells: cells, rows: r, cols: w} end
+    |> case do {r, _, w, cells} -> %{cells: cells, rows: r + 1, cols: w} end
   end
 
   ### Silver
