@@ -6,7 +6,9 @@ defmodule AOC.Y2024.Day11 do
 
   def solver, do: AOC.Scaffold.chain_solver(2024, 11, &parse/1, &solve(&1, 25), &solve(&1, 75))
 
-  def parse(input), do: Regex.scan(~r/\d+/, input) |> Enum.map(fn ss -> List.first(ss) |> String.to_integer() end)
+  def parse(input) do
+    for [s] <- Regex.scan(~r/\d+/, input), do: String.to_integer(s)
+  end
 
   defp digits(a), do: :math.log10(a + 1) |> ceil()
 
