@@ -13,28 +13,59 @@ defmodule AOC.Y2024.Day12 do
     |> case do {cells, heads, r, _, wd} -> %{cells: cells, heads: heads, rows: r + 1, cols: wd} end
   end
 
-  defp neighbors(data, {r, c}, letter) do
-    for {dir, dr, dc} <- [{:east, 0, 1}, {:west, 0, -1}, {:south, 1, 0}, {:north, -1, 0}],
-        nr = r + dr,
-        nc = c + dc,
-        reduce: {[], []} do {cells, walls} ->
-          case {data.cells[{nr, nc}], dir} do
-            {^letter, _} -> {[{nr, nc} | cells], walls}
+  defp add({sr, sc}, {dr, dc}), do: {sr + dr, sc + dc}
 
-            {_, :east} -> {cells, [{{{r, c + 1}, :south}, {r + 1, c + 1}} | walls]}
-            {_, :west} -> {cells, [{{{r + 1, c}, :north}, {r, c}} | walls]}
-            {_, :south} -> {cells, [{{{r + 1, c + 1}, :west}, {r + 1, c}} | walls]}
-            {_, :north} -> {cells, [{{{r, c}, :east}, {r, c + 1}} | walls]}
+  defp neighbors(data, {r, c}, letter) do
+    {cells, walls} =
+      for {dir, dr, dc} <- [{:north, -1, 0}, {:east, 0, 1}, {:south, 1, 0}, {:west, 0, -1}],
+          nr = r + dr,
+          nc = c + dc,
+          reduce: {[], []} do {cells, walls} ->
+            case {data.cells[{nr, nc}], dir} do
+              {^letter, _} -> {[{nr, nc} | cells], walls}
+
+              {_, :east} -> {cells, [{{r, c + 1}, {r + 1, c + 1}} | walls]}
+              {_, :west} -> {cells, [{{r + 1, c}, {r, c}} | walls]}
+              {_, :south} -> {cells, [{{r + 1, c + 1}, {r + 1, c}} | walls]}
+              {_, :north} -> {cells, [{{r, c}, {r, c + 1}} | walls]}
+            end
           end
+
+    for {src, dst} <- Stream.concat(walls, walls),
+        reduce: [] do
+          [] -> [{src, {dst, 0}}]
+          [{p_src, {p_dst, n}} | rest] when dst === p_src -> [{src, {p_dst, n + 1}} | rest]
+          rest -> [{src, {dst, 0}} | rest]
+        end
+        |> case do
+          [] ->
+            for {soff, doff} <- [{{0, 0}, {-1, 0}}, {{0, 1}, {0, 2}}, {{1, 1}, {2, 1}}, {{1, 0}, {1, -1}}],
+                do: {add({r, c}, soff), {add({r, c}, doff), :add_only}}
+          n -> n
+        end
+        |> Enum.uniq()
+        |> tap(&IO.inspect/1)
+        |> case do
+          n -> {cells, n}
         end
   end
 
-  # defp foo(enum) do
-  #   for {k, v} <- enum, reduce: %{}, do: (acc -> if Map.has_key?(acc, k), do: IO.inspect("Duplicate key #{inspect({k, v})}, prev: #{inspect(acc[k])}"); Map.put(acc, k, v))
-  # end
+  defp combine(list) do
+    (for {src, {dst, n}} <- list,
+        reduce: %{} do acc ->
+          Map.update(acc, src, {dst, n}, fn
+            {_, :add_only} when n === :add_only -> nil
+            {_, :add_only} -> {dst, n + 1}
+            {_, m} when n === :add_only -> {dst, m + 1}
+            a -> a
+          end)
+        end)
+    |> Map.filter(fn {_, {_, :add_only}} -> false; {_, {_, nil}} -> false; _ -> true end)
+    |> tap(&IO.inspect/1)
+  end
 
   defp bfs(data, nodes, letter, area \\ 0, sides \\ [], remaining)
-  defp bfs(_, [], _, area, sides, remaining), do: {area, Map.new(sides), remaining}
+  defp bfs(_, [], _, area, sides, remaining), do: {area, combine(sides), remaining}
   defp bfs(data, nodes, letter, area, sides, remaining) do
     for n <- nodes,
         reduce: {area, sides, [], remaining} do {area, sides, next, remaining} ->
@@ -52,22 +83,25 @@ defmodule AOC.Y2024.Day12 do
     end
   end
 
-  defp turn(:north), do: :east
-  defp turn(:east), do: :south
-  defp turn(:south), do: :west
-  defp turn(:west), do: :north
-
   defp count_sides(sides), do: count_sides(Enum.find_value(sides, &elem(&1, 0)), sides, 0)
-  defp count_sides({src, dir}, sides, total) do
-    case Map.get(sides, {src, dir}) do
-      nil -> IO.inspect("CORNER"); count_sides({src, turn(dir)}, sides, total + 1)
+  defp count_sides(src, sides, total) do
+    case Map.get(sides, src) do
+      {dst, val} -> count_sides(dst, Map.put(sides, src, :seen), total + val)
       :seen ->
         case sides |> Enum.find(fn {_, :seen} -> false; _ -> true end) do
-          nil -> IO.inspect({:sides, total}); total
+          nil -> IO.inspect(total); total
           {{src, dir}, _} -> count_sides({src, dir}, sides, total)
         end
-      dst -> IO.inspect({src, dst}); count_sides({dst, dir}, Map.put(sides, {src, dir}, :seen), total)
     end
+    # case Map.get(sides, {src, dir}) do
+    #   nil -> IO.inspect("CORNER"); count_sides({src, turn(dir)}, sides, total + 1)
+    #   :seen ->
+    #     case sides |> Enum.find(fn {_, :seen} -> false; _ -> true end) do
+    #       nil -> IO.inspect({:sides, total}); total
+    #       {{src, dir}, _} -> count_sides({src, dir}, sides, total)
+    #     end
+    #   dst -> IO.inspect({src, dst}); count_sides({dst, dir}, Map.put(sides, {src, dir}, :seen), total)
+    # end
   end
 
   defp score(data, remaining, total \\ 0, total_bulk \\ 0) do
