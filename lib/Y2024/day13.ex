@@ -16,8 +16,8 @@ defmodule AOC.Y2024.Day13 do
     |> Stream.map(fn {{ax, ay}, {bx, by}, {tx, ty}} ->
       tx = tx + add
       ty = ty + add
-      ac = div((tx * by - bx * ty), (ax * by - bx * ay))
-      bc = div((ty - ac * ay), by)
+      ac = div(tx * by - bx * ty, ax * by - bx * ay)
+      bc = div(ty - ac * ay, by)
       eq = tx === ac * ax + bc * bx && ty === ac * ay + bc * by
 
       if eq, do: ac * 3 + bc, else: 0
