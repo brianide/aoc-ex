@@ -15,6 +15,23 @@ defmodule AOC.Y2024.Day12 do
 
   defp add({sr, sc}, {dr, dc}), do: {sr + dr, sc + dc}
 
+  defp fold_edges(edges) do
+    Enum.find_value(edges, fn
+      {src, {dst, score}} when src !== dst ->
+        # IO.inspect(edges)
+        # :timer.sleep(1000)
+        Enum.find_value(edges, fn
+          {b_src, {b_dst, b_score}} when dst === b_src -> {src, {b_dst, max(score, b_score) + 1}}
+          _ -> false
+        end)
+      _ -> false
+    end)
+    |> case do
+      nil -> edges
+      new -> [new | edges] |> Enum.uniq_by(&elem(&1, 0)) |> Enum.uniq_by(fn {_, {dst, _}} -> dst end) |> fold_edges()
+    end
+  end
+
   defp neighbors(data, {r, c}, letter) do
     {cells, walls} =
       for {dir, dr, dc} <- [{:north, -1, 0}, {:east, 0, 1}, {:south, 1, 0}, {:west, 0, -1}],
@@ -31,36 +48,31 @@ defmodule AOC.Y2024.Day12 do
             end
           end
 
-    for {src, dst} <- Stream.concat(walls, walls),
-        reduce: [] do
-          [] -> [{src, {dst, 0}}]
-          [{p_src, {p_dst, n}} | rest] when dst === p_src -> [{src, {p_dst, n + 1}} | rest]
-          rest -> [{src, {dst, 0}} | rest]
-        end
-        |> case do
-          [] ->
-            for {soff, doff} <- [{{0, 0}, {-1, 0}}, {{0, 1}, {0, 2}}, {{1, 1}, {2, 1}}, {{1, 0}, {1, -1}}],
-                do: {add({r, c}, soff), {add({r, c}, doff), :add_only}}
-          n -> n
-        end
-        |> Enum.uniq()
-        |> tap(&IO.inspect/1)
-        |> case do
-          n -> {cells, n}
-        end
+    Enum.map(walls, fn {src, dst} -> {src, {dst, 0}} end)
+    |> fold_edges()
+    |> case do
+      [] ->
+        for {soff, doff} <- [{{0, 0}, {-1, 0}}, {{0, 1}, {0, 2}}, {{1, 1}, {2, 1}}, {{1, 0}, {1, -1}}],
+            do: {add({r, c}, soff), {add({r, c}, doff), :inc}}
+      n -> n
+    end
+    # |> tap(&IO.inspect/1)
+    |> case do
+      n -> {cells, n}
+    end
   end
 
   defp combine(list) do
     (for {src, {dst, n}} <- list,
         reduce: %{} do acc ->
           Map.update(acc, src, {dst, n}, fn
-            {_, :add_only} when n === :add_only -> nil
-            {_, :add_only} -> {dst, n + 1}
-            {_, m} when n === :add_only -> {dst, m + 1}
+            {_, :inc} when n === :inc -> nil
+            {_, :inc} -> {dst, n + 1}
+            {_, m} when n === :inc -> {dst, m + 1}
             a -> a
           end)
         end)
-    |> Map.filter(fn {_, {_, :add_only}} -> false; {_, {_, nil}} -> false; _ -> true end)
+    |> Map.filter(fn {_, {_, :inc}} -> false; _ -> true end)
     |> tap(&IO.inspect/1)
   end
 
@@ -89,7 +101,7 @@ defmodule AOC.Y2024.Day12 do
       {dst, val} -> count_sides(dst, Map.put(sides, src, :seen), total + val)
       :seen ->
         case sides |> Enum.find(fn {_, :seen} -> false; _ -> true end) do
-          nil -> IO.inspect(total); total
+          nil -> IO.inspect(total + 1); total + 1
           {{src, dir}, _} -> count_sides({src, dir}, sides, total)
         end
     end
