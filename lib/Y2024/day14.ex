@@ -26,18 +26,20 @@ defmodule AOC.Y2024.Day14 do
       {x, y} when x > mw and y > mh -> 3
       _ -> -1
     end)
-    |> tap(&IO.inspect/1)
     |> Stream.map(fn {-1, _} -> 1; {_, ls} -> length(ls) end)
     |> Enum.product()
   end
 
-  defp print(ps, {w, h}) do
-    cells = Enum.group_by(ps, &(&1)) |> Map.new(fn {k, v} -> {k, "#{length(v)}"} end)
-    for y <- 0..(h - 1), x <- 0..(w - 1) do Map.get(cells, {x, y}, ".") end
-    |> Stream.chunk_every(w)
-    |> Stream.map(&Enum.join/1)
-    |> Enum.join("\n")
-    |> IO.puts()
+  defp print_pbm(ps, {w, h}, count) do
+    cells = MapSet.new(ps)
+    filenum = String.pad_leading("#{count}", 6, "0")
+
+    vals =
+      for y <- 0..(h - 1), x <- 0..(w - 1) do if MapSet.member?(cells, {x, y}), do: 0, else: 1 end
+      |> Enum.join()
+
+    cont = "P1\n#{w} #{h}\n#{vals}"
+    File.write!("_image/day13_#{filenum}.pbm", cont)
   end
 
   def silver(input, dims \\ {101, 103}) do
@@ -46,10 +48,14 @@ defmodule AOC.Y2024.Day14 do
     |> classify(dims)
   end
 
-  defp render(ps, dims, count \\ 0) do
-    IO.puts("### Frame #{count} ###")
-    Enum.map(ps, fn {pos, vel} -> move(pos, vel, count, dims) end) |> print(dims)
-    render(ps, dims, count + 1)
+  defp render(ps, dims, seen \\ Map.new(), count \\ 0) do
+    res = Enum.map(ps, fn {pos, vel} -> move(pos, vel, count, dims) end)
+    print_pbm(res, dims, count)
+
+    case Map.get(seen, res) do
+      nil -> render(ps, dims, Map.put(seen, res, count), count + 1)
+      n -> "Loop at #{count} (first at #{n})"
+    end
   end
 
   def gold(input, dims \\ {101, 103}), do: render(input, dims)
