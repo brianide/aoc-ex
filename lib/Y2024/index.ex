@@ -14,6 +14,7 @@ defmodule AOC.Y2024.Index do
     {AOC.Y2024.Day12, "Garden Groups"},
     {AOC.Y2024.Day13, "Claw Contraption"},
     {AOC.Y2024.Day14, "Restroom Redoubt"},
+    {AOC.Y2024.Day15, "Warehouse Woes"},
     ## NEXT ##
   ]
 end
