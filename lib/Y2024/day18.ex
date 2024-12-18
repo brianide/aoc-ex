@@ -24,27 +24,41 @@ defmodule AOC.Y2024.Day18 do
 
   defp bfs(walls), do: bfs(MapSet.new([{0, 0}]), walls, MapSet.new(), 0)
   defp bfs(queue, walls, visited, dist) do
-    if MapSet.member?(queue, {@size, @size}) do
-      dist
-    else
-      visited = MapSet.union(visited, queue)
+    cond do
+      MapSet.size(queue) === 0 ->
+        :unreachable
 
-      queue
-      |> Stream.flat_map(&neighbors/1)
-      |> Stream.filter(&(&1 not in visited && &1 not in walls))
-      |> MapSet.new()
-      |> bfs(walls, visited, dist + 1)
+      MapSet.member?(queue, {@size, @size}) ->
+        dist
+
+      :else ->
+        visited = MapSet.union(visited, queue)
+        queue
+        |> Stream.flat_map(&neighbors/1)
+        |> Stream.filter(&(&1 not in visited && &1 not in walls))
+        |> MapSet.new()
+        |> bfs(walls, visited, dist + 1)
     end
   end
 
-  def silver(walls) do
-    Enum.take(walls, 1024)
-    |> bfs()
-    |> inspect(charlists: :as_lists)
+  def silver(walls), do: Enum.take(walls, 1024) |> bfs()
+
+  defp bin_search(l, r, _) when l === r, do: l
+  defp bin_search(l, r, pred) do
+    m = ceil((l + r) / 2)
+    if not pred.(m) do
+      bin_search(l, m - 1, pred)
+    else
+      bin_search(m, r, pred)
+    end
   end
 
-  def gold(_input) do
-    "Not implemented"
+  def gold(walls) do
+    bin_search(@size, length(walls) - 1, &(Enum.take(walls, &1) |> bfs() !== :unreachable))
+    |> then(&Enum.at(walls, &1))
+    |> case do
+      {r, c} -> "#{r},#{c}"
+    end
   end
 
 end
