@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --unstable -A
+#!/usr/bin/env -S deno run -A
 
 async function exists(path) {
     try {
@@ -14,12 +14,35 @@ function wait(millis) {
     return new Promise(res => setTimeout(() => res(), millis));
 }
 
-const [year, days] = Deno.args;
+const [year, days, mode] = Deno.args;
 const cookie = await Deno.readTextFile(".cookie.dat");
 
 // Make directories if they're not already in place
 await Deno.mkdir(`lib/Y${year}`, { recursive: true });
 await Deno.mkdir(`input/real/${year}`, { recursive: true });
+
+async function getInput(year, day) {
+    const dest = `input/real/${year}/day${day}.txt`;
+    if (await exists(dest))
+        return;
+    console.log(`Pulling input for day ${day}`);
+
+    const text = await fetch(`https://adventofcode.com/${year}/day/${day}/input`, {
+        headers: {
+            Cookie: `session=${cookie}`
+        }
+    }).then(r => r.text());
+    await Deno.writeTextFile(dest, text);
+}
+
+if (mode === "input") {
+    for (const day of days.split(",").map(n => +n)) {
+        // Get problem input
+        await getInput(year, day);
+        await wait(1500);
+    }
+    Deno.exit(0);
+}
 
 for (const day of days.split(",").map(n => +n)) {
     // Get problem name
@@ -42,17 +65,7 @@ for (const day of days.split(",").map(n => +n)) {
     console.log(`Adding module to index`);
 
     // Get problem input
-    const dest = `input/real/${year}/day${day}.txt`;
-    if (await exists(dest))
-        continue;
-    console.log(`Pulling input`);
-
-    const text = await fetch(`https://adventofcode.com/${year}/day/${day}/input`, {
-        headers: {
-            Cookie: `session=${cookie}`
-        }
-    }).then(r => r.text());
-    await Deno.writeTextFile(dest, text);
+    await getInput(year, day);
 
     await wait(1500);
 }
