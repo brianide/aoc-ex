@@ -2,6 +2,10 @@ defmodule AOC.Y2024.Day18 do
   @moduledoc title: "RAM Run"
   @moduledoc url: "https://adventofcode.com/2024/day/18"
 
+  alias AOC.Util
+
+  @size 70
+
   def solver, do: AOC.Scaffold.chain_solver(2024, 18, &parse/1, &silver/1, &gold/1)
 
   def parse(input) do
@@ -9,8 +13,6 @@ defmodule AOC.Y2024.Day18 do
     |> Stream.chunk_every(2)
     |> Enum.map(fn [r, c] -> {r, c} end)
   end
-
-  @size 70
 
   defp neighbors({r, c}) do
     for {dr, dc} <- [{0, 1}, {0, -1}, {1, 0}, {-1, 0}],
@@ -27,34 +29,25 @@ defmodule AOC.Y2024.Day18 do
     cond do
       MapSet.size(queue) === 0 ->
         :unreachable
-
       MapSet.member?(queue, {@size, @size}) ->
         dist
-
       :else ->
         visited = MapSet.union(visited, queue)
-        queue
-        |> Stream.flat_map(&neighbors/1)
-        |> Stream.filter(&(&1 not in visited && &1 not in walls))
-        |> MapSet.new()
+        for node <- queue,
+            npos <- neighbors(node),
+            npos not in visited,
+            npos not in walls,
+            into: MapSet.new() do
+              npos
+            end
         |> bfs(walls, visited, dist + 1)
     end
   end
 
   def silver(walls), do: Enum.take(walls, 1024) |> bfs()
 
-  defp bin_search(l, r, _) when l === r, do: l
-  defp bin_search(l, r, pred) do
-    m = ceil((l + r) / 2)
-    if not pred.(m) do
-      bin_search(l, m - 1, pred)
-    else
-      bin_search(m, r, pred)
-    end
-  end
-
   def gold(walls) do
-    bin_search(@size, length(walls) - 1, &(Enum.take(walls, &1) |> bfs() !== :unreachable))
+    Util.bin_search(@size, length(walls) - 1, &(Enum.take(walls, &1) |> bfs() === :unreachable))
     |> then(&Enum.at(walls, &1))
     |> case do
       {r, c} -> "#{r},#{c}"

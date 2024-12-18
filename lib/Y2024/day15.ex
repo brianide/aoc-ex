@@ -17,15 +17,14 @@ defmodule AOC.Y2024.Day15 do
   end
 
   defp parse_dirs(input) do
-    String.graphemes(input)
-    |> Stream.map(fn
-      "<" -> {0, -1}
-      ">" -> {0, 1}
-      "v" -> {1, 0}
-      "^" -> {-1, 0}
-      _ -> nil
-    end)
-    |> Enum.filter(&(not is_nil(&1)))
+    for s <- String.graphemes(input), s !== "\n" do
+      case s do
+        "<" -> {0, -1}
+        ">" -> {0, 1}
+        "v" -> {1, 0}
+        "^" -> {-1, 0}
+      end
+    end
   end
 
   def parse(input) do
@@ -34,6 +33,11 @@ defmodule AOC.Y2024.Day15 do
   end
 
   defp add({r, c}, {dr, dc}), do: {r + dr, c + dc}
+
+  defp score(rocks) do
+    Stream.map(rocks, fn {r, c} -> 100 * r + c end)
+    |> Enum.sum()
+  end
 
   defp try_push(walls, rocks, pos, dir) do
     next = add(pos, dir)
@@ -61,19 +65,59 @@ defmodule AOC.Y2024.Day15 do
     end
   end
 
-  defp score(rocks) do
-    Stream.map(rocks, fn {r, c} -> 100 * r + c end)
-    |> Enum.sum()
-  end
-
   def silver({walls, rocks, start, dirs}) do
     simulate(walls, rocks, start, dirs)
     |> score()
-    # |> inspect(charlists: :as_lists)
   end
 
-  def gold(_input) do
-    "Not implemented"
+  defp convert({walls, rocks, {sr, sc}, dirs}) do
+    walls = walls |> Stream.flat_map(fn {r, c} -> [{r, c * 2}, {r, c * 2 + 1}] end) |> MapSet.new()
+    rocks = rocks |> Stream.map(fn {r, c} -> {r, c * 2} end) |> MapSet.new()
+    {walls, rocks, {sr, sc * 2}, dirs}
+  end
+
+  # defp check_rock(rocks, {r, c}), do: Enum.find([{r, c}, {r, c - 1}], &(&1 in rocks))
+
+  defp push_wide(walls, rocks, pos, dir, reached \\ MapSet.new()) do
+    next = add(pos, dir)
+    offs = add(next, {0, -1})
+
+    cond do
+      next in walls ->
+        :error
+      next in rocks || offs in rocks ->
+        next = Enum.find([next, offs], &(&1 in rocks))
+        push_wide(walls, rocks, next, dir)
+      :else -> {:ok, next}
+    end
+  end
+
+  defp simulate_wide(walls, rocks, pos, [dir | dirs]) do
+    next = add(pos, dir)
+    offs = add(next, {0, -1})
+
+    cond do
+      next in walls ->
+        simulate_wide(walls, rocks, pos, dirs)
+      next in rocks || offs in rocks ->
+        next = Enum.find([next, offs], &(&1 in rocks))
+        case push_wide(walls, rocks, next, dir) do
+          {:ok, reached} ->
+            rocks =
+              for {r, c} <- reached,
+                  reduce: rocks do
+                    rocks -> rocks |> MapSet.delete({r, c}) |> MapSet.put(add({r, c}, dir))
+                  end
+            simulate_wide(walls, rocks, pos, dirs)
+        end
+      :else -> simulate(walls, rocks, next, dirs)
+    end
+  end
+
+  def gold(input) do
+    {walls, rocks, start, dirs} = convert(input)
+    simulate_wide(walls, rocks, start, dirs)
+    |> inspect(charlists: :as_lists)
   end
 
 end

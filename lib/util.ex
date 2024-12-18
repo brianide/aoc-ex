@@ -18,4 +18,18 @@ defmodule AOC.Util do
     end)
   end
 
+  @doc """
+  Returns the first value between `l` and `r` (inclusive) for which `pred` returns a truthy value,
+  or `nil` if no such value exists.
+  """
+  def bin_search(l, r, _) when l === r, do: l
+  def bin_search(l, r, pred) do
+    m = ceil((l + r) / 2)
+    if pred.(m) do
+      bin_search(l, m - 1, pred)
+    else
+      bin_search(m, r, pred)
+    end
+  end
+
 end
