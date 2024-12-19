@@ -16,7 +16,6 @@ defmodule AOC.Y2024.Day19 do
 
   defp verify([], _), do: 1
   defmemop verify(rest, towels) do
-    # IO.inspect(rest)
     for towel <- towels,
         List.starts_with?(rest, towel),
         reduce: 0 do acc ->
