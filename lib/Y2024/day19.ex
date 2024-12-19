@@ -4,7 +4,7 @@ defmodule AOC.Y2024.Day19 do
 
   use Memoize
 
-  def solver, do: AOC.Scaffold.chain_solver(2024, 19, &parse/1, &silver/1, &gold/1)
+  def solver, do: AOC.Scaffold.double_solver(2024, 19, &parse/1, &solve/1)
 
   def parse(input) do
     [towels, designs] = String.split(input, "\n\n")
@@ -14,23 +14,20 @@ defmodule AOC.Y2024.Day19 do
     {towels, designs}
   end
 
-  defp verify([], _), do: true
+  defp verify([], _), do: 1
   defmemop verify(rest, towels) do
     # IO.inspect(rest)
-    towels
-    |> Stream.filter(&List.starts_with?(rest, &1))
-    |> Stream.map(&verify(Enum.drop(rest, length(&1)), towels))
-    |> Enum.any?()
+    for towel <- towels,
+        List.starts_with?(rest, towel),
+        reduce: 0 do acc ->
+          rest = Enum.drop(rest, length(towel))
+          acc + verify(rest, towels)
+        end
   end
 
-  def silver({towels, designs}) do
-    designs
-    |> Enum.count(&verify(&1, towels))
-    # |> inspect(charlists: :as_lists)
-  end
-
-  def gold(_input) do
-    "Not implemented"
+  def solve({towels, designs}) do
+    counts = Enum.map(designs, &verify(&1, towels))
+    {Enum.count(counts, &(&1 > 0)), Enum.sum(counts)}
   end
 
 end
