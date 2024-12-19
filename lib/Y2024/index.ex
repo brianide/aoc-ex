@@ -18,6 +18,7 @@ defmodule AOC.Y2024.Index do
     {AOC.Y2024.Day16, "Reindeer Maze"},
     {AOC.Y2024.Day17, "Chronospatial Computer"},
     {AOC.Y2024.Day18, "RAM Run"},
+    {AOC.Y2024.Day19, "Linen Layout"},
     ## NEXT ##
   ]
 end
