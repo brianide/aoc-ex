@@ -40,4 +40,14 @@ defmodule AOC.Util do
     end)
   end
 
+  def all_pairs([]), do: []
+  def all_pairs([_]), do: []
+  def all_pairs([h | rest]) do
+    Stream.unfold({h, rest, rest}, fn
+      {h, [t | ts], more} -> {{h, t}, {h, ts, more}}
+      {_, [], [h, t | ts]} -> {{h, t}, {h, ts, [t | ts]}}
+      {_, [], [_]} -> nil
+    end)
+  end
+
 end

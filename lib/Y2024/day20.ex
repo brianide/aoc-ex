@@ -36,18 +36,20 @@ defmodule AOC.Y2024.Day20 do
 
   @threshold 100
   defp check_skips(dists) do
-    for {pa, da} <- dists,
-        {pb, db} <- dists,
-        pa !== pb,
-        dist = manhattan_dist(pa, pb),
-        db - da - dist >= @threshold,
-        reduce: {0, 0} do {s, g} ->
-          case dist do
-            2 -> {s + 1, g + 1}
-            n when n <= 20 -> {s, g + 1}
-            _ -> {s, g}
-          end
-        end
+    Map.to_list(dists)
+    |> AOC.Util.all_pairs()
+    |> Stream.map(fn {{pa, da}, {pb, db}} ->
+      dist = manhattan_dist(pa, pb)
+      cond do
+        abs(db - da) - dist < @threshold -> {0, 0}
+        dist === 2 -> {1, 1}
+        dist <= 20 -> {0, 1}
+        :else -> {0, 0}
+      end
+    end)
+    |> Enum.reduce({0, 0}, fn
+      {s, g}, {ts, tg} -> {ts + s, tg + g}
+    end)
   end
 
   def solve({map, finish}), do: bfs(finish, map) |> check_skips()
