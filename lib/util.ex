@@ -32,4 +32,12 @@ defmodule AOC.Util do
     end
   end
 
+  @unset {__MODULE__, :unset}
+  def pairwise(enum) do
+    Stream.transform(enum, @unset, fn
+      curr, @unset -> {[], curr}
+      curr, prev -> {[{prev, curr}], curr}
+    end)
+  end
+
 end

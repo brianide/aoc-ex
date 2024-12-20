@@ -11,18 +11,16 @@ defmodule AOC.Y2024.Day2 do
     |> Enum.map(fn s -> String.split(s, ~r/ +/) |> Enum.map(&String.to_integer/1) end)
   end
 
-  def check(input), do: check(:unset, input)
+  def check(input), do: check(nil, input)
+  def check(_, [_]), do: true
   def check(order, [a, b | rest]) do
     case {order, abs(b - a), AOC.Util.sign(b - a)} do
       {_, v, _} when v < 1 or v > 3 -> false
-      {:unset, _, s} when s > 0 -> check(:asc, [b | rest])
-      {:unset, _, s} when s < 0 -> check(:desc, [b | rest])
-      {:asc, _, s} when s > 0 -> check(:asc, [b | rest])
-      {:desc, _, s} when s < 0 -> check(:desc, [b | rest])
+      {nil, _, s} -> check(s, [b | rest])
+      {ns, _, s} when ns === s -> check(s, [b | rest])
       _ -> false
     end
   end
-  def check(_, [_]), do: true
 
   def check_alts(input) do
     Stream.unfold(0, fn

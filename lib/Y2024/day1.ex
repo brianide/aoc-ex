@@ -13,22 +13,18 @@ defmodule AOC.Y2024.Day1 do
   def parse(a, b, []), do: {a, b}
 
   def silver({a, b}) do
-    a = Enum.sort(a)
-    b = Enum.sort(b)
-
-    Enum.zip(a, b)
-    |> Enum.map(fn {a, b} -> abs(b - a) end)
-    |> Enum.sum()
+    for {a, b} <- Stream.zip(Enum.sort(a), Enum.sort(b)),
+        reduce: 0 do
+          acc -> acc + abs(b - a)
+        end
   end
 
   def gold({a, b}) do
-    keys = Enum.concat(a, b) |> Enum.uniq()
-    a = Enum.frequencies(a)
-    b = Enum.frequencies(b)
-
-    keys
-    |> Enum.map(fn k -> Map.get(a, k, 0) * Map.get(b, k, 0) * k end)
-    |> Enum.sum()
+    freq = Enum.frequencies(b)
+    for a <- a,
+        reduce: 0 do
+          acc -> acc + Map.get(freq, a, 0)
+        end
   end
 
 end
