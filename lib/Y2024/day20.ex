@@ -7,51 +7,52 @@ defmodule AOC.Y2024.Day20 do
   def parse(input) do
     case AOC.Util.parse_grid(input, dims: false, ignore: ["#"]) do
       %{"." => f, "S" => [s], "E" => [e]} ->
-        {MapSet.new([s, e | f]), s, e}
+        {MapSet.new([s, e | f]), s}
     end
   end
 
-  defp neighbors({r, c}) do
+  defp walk(tiles, {r, c}, func, prev \\ nil, depth \\ 1) do
+    func.({:node, {r, c}, depth})
     for {dr, dc} <- [{0, 1}, {0, -1}, {1, 0}, {-1, 0}],
         r = r + dr,
-        c = c + dc do
+        c = c + dc,
+        {r, c} !== prev,
+        {r, c} in tiles do
           {r, c}
         end
-  end
-
-  defp bfs(tiles, start, goal), do: bfs([start], tiles, goal, 1, %{start => 0})
-  defp bfs(_, _, goal, _, dists) when is_map_key(dists, goal), do: dists
-  defp bfs(queue, tiles, goal, depth, dists) do
-    for curr <- queue,
-        pos <- neighbors(curr),
-        pos in tiles,
-        not is_map_key(dists, pos),
-        into: %{} do {pos, depth} end
     |> case do
-      ns -> bfs(Map.keys(ns), tiles, goal, depth + 1, Map.merge(dists, ns))
+      [next] -> walk(tiles, next, func, {r, c}, depth + 1)
+      [] -> func.(:done)
     end
   end
 
   defp manhattan_dist({ra, ca}, {rb, cb}), do: abs(rb - ra) + abs(cb - ca)
 
   @threshold 100
-  defp check_skips(dists) do
-    Map.to_list(dists)
-    |> AOC.Util.all_pairs()
-    |> Stream.map(fn {{pa, da}, {pb, db}} ->
-      dist = manhattan_dist(pa, pb)
-      cond do
-        abs(db - da) - dist < @threshold -> {0, 0}
-        dist === 2 -> {1, 1}
-        dist <= 20 -> {0, 1}
-        :else -> {0, 0}
-      end
-    end)
-    |> Enum.reduce({0, 0}, fn
-      {s, g}, {ts, tg} -> {ts + s, tg + g}
-    end)
+  defp check_skips(parent, totals \\ {0, 0}, prevs \\ []) do
+    receive do
+      :done -> send(parent, totals)
+      {:node, pos, dist} ->
+        for {posb, distb} <- Enum.drop(prevs, 100),
+            nanos = manhattan_dist(pos, posb),
+            nanos <= 20,
+            dist - distb - nanos >= @threshold,
+            reduce: totals do
+              {s, g} when nanos === 2 -> {s + 1, g + 1}
+              {s, g} -> {s, g + 1}
+            end
+        |> case do totals -> check_skips(parent, totals, [{pos, dist} | prevs]) end
+    end
   end
 
-  def solve({tiles, start, finish}), do: bfs(tiles, finish, start) |> check_skips()
+  def solve({tiles, start}) do
+    parent = self()
+    pid = spawn(fn -> check_skips(parent) end)
+
+    walk(tiles, start, &send(pid, &1))
+    receive do
+      totals -> totals
+    end
+  end
 
 end
