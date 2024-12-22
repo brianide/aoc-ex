@@ -47,8 +47,7 @@ defmodule AOC.Y2024.Day22 do
   end
 
   def gold(input) do
-    for seed <- input,
-        scores = sequences(seed),
+    for {:ok, scores} <- Task.async_stream(input, &sequences/1),
         reduce: %{} do acc ->
           Map.merge(acc, scores, fn _, a, b -> a + b end)
         end
