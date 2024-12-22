@@ -22,10 +22,14 @@ defmodule AOC.Y2024.Day21 do
     def keypad, do: @keypad
     def panel, do: @panel
 
+    def for_depth(0), do: keypad()
+    def for_depth(_), do: panel();
+
     def offset("<"), do: {0, -1}
     def offset(">"), do: {0, 1}
     def offset("^"), do: {-1, 0}
     def offset("v"), do: {1, 0}
+    def offset("A"), do: {0, 0}
   end
 
   def parse(input) do
@@ -38,7 +42,7 @@ defmodule AOC.Y2024.Day21 do
   defp diff({r, c}, {br, bc}), do: {r - br, c - bc}
   defp add({r, c}, {br, bc}), do: {r + br, c + bc}
 
-  defp combos(a, b, prefix \\ [])
+  defp combos(a, b, prefix \\ ["A"])
   defp combos([], [], prefix), do: [prefix]
   defp combos([], b, prefix), do: [b ++ prefix]
   defp combos(a, [], prefix), do: combos([], a, prefix)
@@ -50,8 +54,8 @@ defmodule AOC.Y2024.Day21 do
     |> Stream.concat()
   end
 
-  defp check_path(pos, path, grid) do
-    dud = Map.get(grid, "#")
+  defp check_path(pos, path, depth) do
+    dud = Map.get(Grids.for_depth(depth), "#")
 
     Stream.map(path, &Grids.offset/1)
     |> Stream.scan(pos, &add/2)
@@ -59,7 +63,7 @@ defmodule AOC.Y2024.Day21 do
   end
 
   defp paths(src, dst, depth) do
-    grid = if depth === 0, do: Grids.keypad(), else: Grids.panel()
+    grid = Grids.for_depth(depth)
     src_pos = Map.get(grid, src)
     dst_pos = Map.get(grid, dst)
     {dr, dc} = diff(dst_pos, src_pos)
@@ -72,16 +76,37 @@ defmodule AOC.Y2024.Day21 do
       end
 
     combos(moves.(dr, "v", "^"), moves.(dc, ">", "<"))
-    |> Enum.filter(&check_path(src_pos, &1, grid))
+    |> Enum.filter(&check_path(src_pos, &1, depth))
   end
 
-  def silver(_input) do
-    paths("7", "3", 0)
+  defp shortest(src, dst, depth) do
+    paths(src, dst, depth)
+    |> Enum.sort_by(&length/1, :desc)
+    |> List.first()
+  end
+
+  defp expand(code, level, max_level) when level === max_level, do: code
+  defp expand(code, level, max_level) do
+    IO.inspect(Enum.join(code))
+    AOC.Util.pairwise(["A" | code])
+    |> Enum.flat_map(fn {a, b} -> shortest(a, b, level) end)
+    |> expand(level + 1, max_level)
+  end
+
+  def silver(input) do
+    for {code, mult} <- input,
+        code = expand(code, 0, 3) do
+          {code, mult}
+        end
     |> inspect()
   end
 
   def gold(_input) do
     "Not implemented"
+  end
+
+  def foo() do
+    paths("9", "7", 0) |> IO.inspect()
   end
 
 end
