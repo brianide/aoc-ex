@@ -29,8 +29,31 @@ defmodule AOC.Y2024.Day22 do
         reduce: 0 do acc -> acc + n end
   end
 
-  def gold(_input) do
-    "Not implemented"
+  def sequences(seed) do
+    Stream.iterate(seed, &next_number/1)
+    |> Stream.take(2001)
+    |> Stream.map(&rem(&1, 10))
+    |> Stream.transform({nil, []}, fn
+      curr, {nil, []} ->
+        {[], {curr, []}}
+      curr, {prev, ds} when length(ds) < 3 ->
+        {[], {curr, [curr - prev | ds]}}
+      curr, {prev, ds} ->
+        ds = [curr - prev | Enum.take(ds, 3)]
+        {[{ds, curr}], {curr, ds}}
+    end)
+    |> Enum.reverse()
+    |> Map.new()
+  end
+
+  def gold(input) do
+    for seed <- input,
+        scores = sequences(seed),
+        reduce: %{} do acc ->
+          Map.merge(acc, scores, fn _, a, b -> a + b end)
+        end
+    |> Enum.max_by(&elem(&1, 1))
+    |> case do {_, v} -> v end
   end
 
 end
