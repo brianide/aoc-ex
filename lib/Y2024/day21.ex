@@ -81,13 +81,12 @@ defmodule AOC.Y2024.Day21 do
 
   defp shortest(src, dst, depth) do
     paths(src, dst, depth)
-    |> Enum.sort_by(&length/1, :desc)
+    |> Enum.sort_by(&length/1, :asc)
     |> List.first()
   end
 
   defp expand(code, level, max_level) when level === max_level, do: code
   defp expand(code, level, max_level) do
-    IO.inspect(Enum.join(code))
     AOC.Util.pairwise(["A" | code])
     |> Enum.flat_map(fn {a, b} -> shortest(a, b, level) end)
     |> expand(level + 1, max_level)
@@ -96,17 +95,14 @@ defmodule AOC.Y2024.Day21 do
   def silver(input) do
     for {code, mult} <- input,
         code = expand(code, 0, 3) do
-          {code, mult}
+          Enum.join(code) |> IO.puts()
+          {length(code), mult}
         end
     |> inspect()
   end
 
   def gold(_input) do
     "Not implemented"
-  end
-
-  def foo() do
-    paths("9", "7", 0) |> IO.inspect()
   end
 
 end
