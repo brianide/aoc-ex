@@ -5,23 +5,18 @@ defmodule AOC.Y2024.Day6 do
   def solver, do: AOC.Scaffold.chain_solver(2024, 6, &parse/1, &silver/1, &gold/1)
 
   def parse(input) do
-    {obs, rows, cols, init} =
-      String.graphemes(input)
-      |> Enum.reduce({MapSet.new(), 0, 0, 0, {0, 0}}, fn
-        "\n", {obs, r, c, _, st} -> {obs, r + 1, 0, c, st}
-        "^", {obs, r, c, wd, _} -> {obs, r, c + 1, wd, {r, c}}
-        "#", {obs, r, c, wd, st} -> {MapSet.put(obs, {r, c}), r, c + 1, wd, st}
-        ".", {obs, r, c, wd, st} -> {obs, r, c + 1, wd, st}
-      end)
-      |> then(fn {obs, r, _, wd, st} -> {obs, r + 1, wd, st} end)
+    group = fn obs, i -> obs |> Enum.group_by(&elem(&1, i), &elem(&1, 1 - i)) |> Map.new(fn {k, v} -> {k, Enum.sort(v, :desc)} end) end
 
-    %{
-      rows: rows,
-      cols: cols,
-      init: init,
-      by_row: Enum.group_by(obs, &elem(&1, 0), &elem(&1, 1)) |> Map.new(fn {k, v} -> {k, Enum.sort(v, :desc)} end),
-      by_col: Enum.group_by(obs, &elem(&1, 1), &elem(&1, 0)) |> Map.new(fn {k, v} -> {k, Enum.sort(v, :desc)} end)
-    }
+    case AOC.Util.parse_grid(input, as_strings: false, ignore: [?.]) do
+      {%{?^ => [start], ?# => obs}, r, c} ->
+        %{
+          rows: r,
+          cols: c,
+          init: start,
+          by_row: group.(obs, 0),
+          by_col: group.(obs, 1)
+        }
+    end
   end
 
   defp turn(:north), do: :east

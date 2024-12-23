@@ -5,13 +5,9 @@ defmodule AOC.Y2024.Day8 do
   def solver, do: AOC.Scaffold.chain_solver(2024, 8, &parse/1, &solve(&1, false), &solve(&1, true))
 
   def parse(input) do
-    String.graphemes(input)
-    |> Enum.reduce({%{}, 0, 0, 0}, fn
-      "\n", {ant, r, c, _} -> {ant, r + 1, 0, c}
-      ".", {ant, r, c, wd} -> {ant, r, c + 1, wd}
-      n, {ant, r, c, wd} -> {Map.update(ant, n, [{r, c}], &[{r, c} | &1]), r, c + 1, wd}
-    end)
-    |> case do {ant, r, _, wd} -> %{ants: ant, rows: r + 1, cols: wd} end
+    case AOC.Util.parse_grid(input, as_strings: false, ignore: [?.]) do
+      {ch, r, c} -> %{ants: ch, rows: r, cols: c}
+    end
   end
 
   defp add({r, c}, {dr, dc}), do: {r + dr, c + dc}
