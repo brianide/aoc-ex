@@ -11,6 +11,7 @@ defmodule AOC.Y2024.Day23 do
           |> Map.update(a, [b], &[b | &1])
           |> Map.update(b, [a], &[a | &1])
         end
+    |> Map.new(fn {k, vs} -> {k, MapSet.new(vs)} end)
   end
 
   def silver(input) do
@@ -21,13 +22,28 @@ defmodule AOC.Y2024.Day23 do
           Enum.sort([a, b, c])
         end
     |> Enum.sort()
-    |> Enum.uniq()
+    |> Enum.dedup()
     |> length()
-    |> inspect()
   end
 
-  def gold(_input) do
-    "Not implemented"
+  defp bron_kerobisch(r \\ MapSet.new(), p, x \\ MapSet.new(), neighbors) do
+    if MapSet.size(p) === 0 && MapSet.size(x) === 0 do
+      [r]
+    else
+      Enum.reduce(p, {p, x, []}, fn v, {p, x, rs} ->
+        nv = neighbors.(v)
+        res = bron_kerobisch(MapSet.put(r, v), MapSet.intersection(p, nv), MapSet.intersection(x, nv), neighbors)
+        {MapSet.delete(p, v), MapSet.put(x, v), res ++ rs}
+      end)
+      |> case do {_, _, rs} -> rs end
+    end
+  end
+
+  def gold(input) do
+    bron_kerobisch(MapSet.new(Map.keys(input)), &Map.get(input, &1))
+    |> Enum.max_by(&MapSet.size/1)
+    |> Enum.sort()
+    |> Enum.join(",")
   end
 
 end

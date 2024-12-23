@@ -40,6 +40,7 @@ defmodule AOC.Util do
     end)
   end
 
+  def all_pairs(enum) when not is_list(enum), do: all_pairs(Enum.to_list(enum))
   def all_pairs([]), do: []
   def all_pairs([_]), do: []
   def all_pairs([h | rest]) do
