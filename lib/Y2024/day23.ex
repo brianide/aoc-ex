@@ -30,17 +30,19 @@ defmodule AOC.Y2024.Day23 do
     if MapSet.size(p) === 0 && MapSet.size(x) === 0 do
       [r]
     else
-      Enum.reduce(p, {p, x, []}, fn v, {p, x, rs} ->
+      Enum.flat_map_reduce(p, {p, x}, fn v, {p, x} ->
         nv = neighbors.(v)
         res = bron_kerobisch(MapSet.put(r, v), MapSet.intersection(p, nv), MapSet.intersection(x, nv), neighbors)
-        {MapSet.delete(p, v), MapSet.put(x, v), res ++ rs}
+        {res, {MapSet.delete(p, v), MapSet.put(x, v)}}
       end)
-      |> case do {_, _, rs} -> rs end
+      |> case do {rs, _} -> rs end
     end
   end
 
   def gold(input) do
-    bron_kerobisch(MapSet.new(Map.keys(input)), &Map.get(input, &1))
+    Map.keys(input)
+    |> MapSet.new()
+    |> bron_kerobisch(&Map.get(input, &1))
     |> Enum.max_by(&MapSet.size/1)
     |> Enum.sort()
     |> Enum.join(",")
