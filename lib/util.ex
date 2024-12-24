@@ -4,40 +4,33 @@ defmodule AOC.Util do
   def sign(x) when x < 0, do: -1
   def sign(_), do: 0
 
-  # def parse_grid(str, opts \\ []) do
-  #   opts = Keyword.validate!(opts, ignore: ["."], dims: true)
-
-  #   str
-  #   |> String.trim()
-  #   |> String.graphemes()
-  #   |> Stream.concat([:eof])
-  #   |> Enum.reduce({%{}, 0, 0, 0}, fn
-  #     "\n", {chars, r, c, _} -> {chars, r + 1, 0, c}
-  #     :eof, {chars, r, _, wd} -> if not opts[:dims], do: chars, else: {chars, r + 1, wd}
-  #     ch, {chars, r, c, wd} -> {(if ch in opts[:ignore], do: chars, else: Map.update(chars, ch, [{r, c}], &[{r, c} | &1])), r, c + 1, wd}
-  #   end)
-  # end
-
-  @spec parse_grid(String.t(), [{:ignore, [String.t()]} | {:dims, boolean()} | {:as_strings, boolean()}]) :: map()
-  def parse_grid(str, opts \\ []) do
-    opts = Keyword.validate!(opts, ignore: [".", ?.], dims: true, as_strings: true)
+  @doc """
+  Parses a rectangular map from `str`, producing a map associating characters/graphemes to lists of
+  coordinates at which they occur. Optionally returns the dimensions of the map.
+  """
+  @type parsed_map() :: %{optional(char() | String.t()) => [{integer(), integer()}]}
+  @spec parse_map(String.t(), [{:ignore, [String.t()]} | {:dims, boolean()} | {:as_strings, boolean()}]) :: parsed_map() | {parsed_map(), {integer(), integer()}}
+  def parse_map(str, opts \\ []) do
+    opts = Keyword.validate!(opts, ignore: [".", ?.], dims: true, as_strings: false)
     splitter = if opts[:as_strings], do: &String.graphemes/1, else: &String.to_charlist/1
 
     str
     |> String.trim()
     |> splitter.()
-    |> Stream.concat([:eof])
     |> Enum.reduce({%{}, 0, 0, 0}, fn
-      :eof, {chars, r, _, wd} -> if not opts[:dims], do: chars, else: {chars, r + 1, wd}
       ch, {chars, r, c, _} when ch in [?\n, "\n"] -> {chars, r + 1, 0, c}
       ch, {chars, r, c, wd} -> {(if ch in opts[:ignore], do: chars, else: Map.update(chars, ch, [{r, c}], &[{r, c} | &1])), r, c + 1, wd}
     end)
+    |> case do
+      {chars, r, _, wd} -> if not opts[:dims], do: chars, else: {chars, {r + 1, wd}}
+    end
   end
 
   @doc """
   Returns the first value between `l` and `r` (inclusive) for which `pred` returns a truthy value,
   or `nil` if no such value exists.
   """
+  @spec bin_search(term(), term(), (term() -> boolean())) :: term()
   def bin_search(l, r, _) when l === r, do: l
   def bin_search(l, r, pred) do
     m = ceil((l + r) / 2)

@@ -5,8 +5,8 @@ defmodule AOC.Y2024.Day8 do
   def solver, do: AOC.Scaffold.chain_solver(2024, 8, &parse/1, &solve(&1, false), &solve(&1, true))
 
   def parse(input) do
-    case AOC.Util.parse_grid(input, as_strings: false, ignore: [?.]) do
-      {ch, r, c} -> %{ants: ch, rows: r, cols: c}
+    case AOC.Util.parse_map(input, ignore: [?.]) do
+      {ch, {r, c}} -> %{ants: ch, rows: r, cols: c}
     end
   end
 

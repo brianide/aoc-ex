@@ -7,7 +7,7 @@ defmodule AOC.Y2024.Day16 do
   alias PriorityQueue, as: PQ
 
   def parse(input) do
-    case AOC.Util.parse_grid(input, dims: false, as_strings: false, ignore: [?#]) do
+    case AOC.Util.parse_map(input, dims: false, ignore: [?#]) do
       %{?. => t, ?S => [s], ?E => [e]} ->
         {MapSet.new([s, e | t]), s, e}
     end

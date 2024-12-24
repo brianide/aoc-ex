@@ -5,7 +5,7 @@ defmodule AOC.Y2024.Day20 do
   def solver, do: AOC.Scaffold.double_solver(2024, 20, &parse/1, &solve/1)
 
   def parse(input) do
-    case AOC.Util.parse_grid(input, dims: false, ignore: [?#], as_strings: false) do
+    case AOC.Util.parse_map(input, dims: false, ignore: [?#]) do
       %{?. => f, ?S => [s], ?E => [e]} ->
         {MapSet.new([s, e | f]), s}
     end

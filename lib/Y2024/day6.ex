@@ -7,8 +7,8 @@ defmodule AOC.Y2024.Day6 do
   def parse(input) do
     group = fn obs, i -> obs |> Enum.group_by(&elem(&1, i), &elem(&1, 1 - i)) |> Map.new(fn {k, v} -> {k, Enum.sort(v, :desc)} end) end
 
-    case AOC.Util.parse_grid(input, as_strings: false, ignore: [?.]) do
-      {%{?^ => [start], ?# => obs}, r, c} ->
+    case AOC.Util.parse_map(input, ignore: [?.]) do
+      {%{?^ => [start], ?# => obs}, {r, c}} ->
         %{
           rows: r,
           cols: c,

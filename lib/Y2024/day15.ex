@@ -5,24 +5,18 @@ defmodule AOC.Y2024.Day15 do
   def solver, do: AOC.Scaffold.chain_solver(2024, 15, &parse/1, &silver/1, &gold/1)
 
   defp parse_map(input) do
-    String.graphemes(input)
-    |> Enum.reduce({[], [], nil, 0, 0, 0}, fn
-      "\n", {walls, rocks, st, r, c, _} -> {walls, rocks, st, r + 1, 0, c}
-      ".", {walls, rocks, st, r, c, wd} -> {walls, rocks, st, r, c + 1, wd}
-      "#", {walls, rocks, st, r, c, wd} -> {[{r, c} | walls], rocks, st, r, c + 1, wd}
-      "O", {walls, rocks, st, r, c, wd} -> {walls, [{r, c} | rocks], st, r, c + 1, wd}
-      "@", {walls, rocks, _, r, c, wd} -> {walls, rocks, {r, c}, r, c + 1, wd}
-    end)
-    |> case do {walls, rocks, st, _, _, _} -> {MapSet.new(walls), MapSet.new(rocks), st} end
+    case AOC.Util.parse_map(input, dims: false, ignore: [?.]) do
+      %{?# => ws, ?O => rs, ?@ => [st]} -> {MapSet.new(ws), MapSet.new(rs), st}
+    end
   end
 
   defp parse_dirs(input) do
-    for s <- String.graphemes(input), s !== "\n" do
+    for s <- String.to_charlist(input), s !== ?\n do
       case s do
-        "<" -> {0, -1}
-        ">" -> {0, 1}
-        "v" -> {1, 0}
-        "^" -> {-1, 0}
+        ?< -> {0, -1}
+        ?> -> {0, 1}
+        ?v -> {1, 0}
+        ?^ -> {-1, 0}
       end
     end
   end
