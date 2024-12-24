@@ -29,7 +29,6 @@ defmodule AOC.Y2024.Day12 do
         queue = Stream.filter(near, &(&1 not in seen)) |> MapSet.new() |> MapSet.union(MapSet.delete(queue, node))
 
         peri = peri + 4 - length(near)
-        # sides = Enum.filter([:north, :south, :east, :west], &(&1 not in conns))
         sides = for side <- [:north, :south, :east, :west], side not in conns, do: (Dir.turn_right(side))
         boundaries = if length(near) === 4, do: boundaries, else: Enum.map(sides, &{node, &1}) ++ boundaries
         bfs(queue, seen, peri, boundaries, neighbors)
@@ -52,7 +51,7 @@ defmodule AOC.Y2024.Day12 do
     for letter <- Map.keys(input),
         tiles = Map.get(input, letter) do
           find_islands_for_letter(tiles, letter)
-          |> tap(&IO.inspect({letter, &1}))
+          # |> tap(&IO.inspect({letter, &1}))
         end
     |> Enum.flat_map(&(&1))
   end
@@ -69,6 +68,7 @@ defmodule AOC.Y2024.Day12 do
   end
 
   defp trace_contour(pos, dir, tiles, sides \\ 0, seen \\ MapSet.new()) do
+    IO.inspect({pos, dir})
     if {pos, dir} in seen do
       {sides, seen}
     else
@@ -79,6 +79,7 @@ defmodule AOC.Y2024.Day12 do
         nil ->
           trace_contour(pos, Dir.turn_right(dir), tiles, sides + 1, seen)
         {n_pos, {n_dir, cost}} ->
+          seen = if cost !== 3, do: seen, else: MapSet.put(seen, {pos, Dir.turn_right(dir)})
           trace_contour(n_pos, n_dir, tiles, sides + cost, seen)
       end
     end
@@ -91,6 +92,7 @@ defmodule AOC.Y2024.Day12 do
       {pos, dir} = Enum.find(tiles, &(&1))
       {sides, seen} = trace_contour(pos, dir, tiles)
       tiles = MapSet.difference(tiles, seen)
+      IO.inspect(tiles)
       sides + calc_sides(tiles)
     end
   end
