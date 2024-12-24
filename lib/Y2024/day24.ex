@@ -15,11 +15,8 @@ defmodule AOC.Y2024.Day24 do
       for [_, a, op, b, c] <- Regex.scan(~r/(.{3}) (AND|OR|XOR) (.{3}) -> (.{3})/, gates) do
         a = {:var, a}
         b = {:var, b}
-        case op do
-          "AND" -> {c, {:and, a, b}}
-          "OR" -> {c, {:or, a, b}}
-          "XOR" -> {c, {:xor, a, b}}
-        end
+        op = case op do "AND" -> :and; "OR" -> :or; "XOR" -> :xor end
+        {c, {op, a, b}}
       end
 
     Map.new(Stream.concat(inits, gates))
@@ -35,18 +32,64 @@ defmodule AOC.Y2024.Day24 do
   defp simplify_until_const({:const, n}, _), do: n
   defp simplify_until_const(exp, table), do: simplify(exp, table) |> simplify_until_const(table)
 
-  def silver(input) do
-    Stream.unfold(0, fn acc -> {"z" <> String.pad_leading("#{acc}", 2, "0"), acc + 1} end)
-    |> Stream.map(&Map.get(input, &1))
+  defp solve_for(table, var) do
+    Stream.unfold(0, fn acc -> {var <> String.pad_leading("#{acc}", 2, "0"), acc + 1} end)
+    |> Stream.map(&Map.get(table, &1))
     |> Stream.take_while(&(&1))
-    |> Stream.map(&simplify_until_const(&1, input))
+    |> Stream.map(&simplify_until_const(&1, table))
     |> Enum.reverse()
     |> Enum.reduce(0, fn n, acc -> acc |> Bitwise.bsl(1) |> Bitwise.bor(n) end)
-    |> inspect(charlists: :as_lists)
   end
 
-  def gold(_input) do
-    "Not implemented"
+  def silver(input), do: solve_for(input, "z")
+
+  defp recur(exp, table, cache) do
+    case exp do
+      {:var, k} when is_map_key(cache, k) ->
+        {Map.get(cache, k), cache}
+      {:var, k} ->
+        {res, cache} = recur(Map.get(table, k), table, cache)
+        {res, Map.put(cache, k, res)}
+      {:const, n} ->
+        {n, cache}
+      {op, a, b} ->
+        {a, cache} = recur(a, table, cache)
+        {b, cache} = recur(b, table, cache)
+        case op do
+          :and -> Bitwise.band(a, b)
+          :or -> Bitwise.bor(a, b)
+          :xor -> Bitwise.bxor(a, b)
+        end
+        |> case do
+          res -> {res, cache}
+        end
+    end
+  end
+
+  defp solve_recur(table, var) do
+    Stream.unfold(0, fn acc -> {var <> String.pad_leading("#{acc}", 2, "0"), acc + 1} end)
+    |> Stream.take_while(&is_map_key(table, &1))
+    |> Enum.flat_map_reduce(%{}, fn key, cache ->
+      {res, cache} = recur({:var, key}, table, cache)
+      {[res], cache}
+    end)
+    |> case do
+      {res, cache} ->
+        res
+        |> Enum.reverse()
+        |> Enum.reduce(0, fn n, acc -> acc |> Bitwise.bsl(1) |> Bitwise.bor(n) end)
+        |> case do n -> {n, cache} end
+    end
+  end
+
+  def gold(input) do
+    solve_recur(input, "z")
+    |> inspect()
+    # sum = solve_for(input, "x") + solve_for(input, "y")
+    # res = solve_for(input, "z")
+    # print = fn n -> n |> Integer.to_string(2) |> String.pad_leading(64, "0") |> IO.puts() end
+    # Bitwise.bxor(sum, res) |> print.()
+    # ""
   end
 
 end
