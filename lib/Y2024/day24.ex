@@ -13,6 +13,7 @@ defmodule AOC.Y2024.Day24 do
 
     gates =
       for [_, a, op, b, c] <- Regex.scan(~r/(.{3}) (AND|OR|XOR) (.{3}) -> (.{3})/, gates) do
+        [a, b] = Enum.sort([a, b])
         a = {:var, a}
         b = {:var, b}
         op = case op do "AND" -> :and; "OR" -> :or; "XOR" -> :xor end
@@ -45,12 +46,7 @@ defmodule AOC.Y2024.Day24 do
 
   def silver(input), do: value_of(input, "z")
 
-  # 1. If the output of a gate is z, then the operation has to be XOR unless it is the last bit.
-  # 2. If the output of a gate is not z and the inputs are not x, y then it has to be AND / OR, but not XOR.
-  # 3. If you have a XOR gate with inputs x, y, there must be another XOR gate with this gate as an input.
-  #    Search through all gates for an XOR-gate with this gate as an input; if it does not exist, your (original) XOR gate is faulty.
-  # 4. If you have an AND-gate, there must be an OR-gate with this gate as an input.
-  #    If that gate doesn't exist, the original AND gate is faulty.
+  defp is_reg?(k, ls), do: String.first(k) in ls
 
   def gold(input) do
     last_z = key_stream("z") |> Stream.take_while(&is_map_key(input, &1)) |> Enum.reverse() |> List.first()
@@ -58,7 +54,7 @@ defmodule AOC.Y2024.Day24 do
     rule1 =
       Enum.filter(input, fn
         {k, {op, _, _}} when op !== :xor ->
-          String.first(k) === "z" && k !== last_z
+          is_reg?(k, ~w/z/) && k !== last_z
         _ ->
           false
       end)
@@ -66,22 +62,22 @@ defmodule AOC.Y2024.Day24 do
     rule2 =
       Enum.filter(input, fn
         {k, {:xor, {:var, a}, {:var, b}}} ->
-          String.first(k) !== "z" && String.first(a) not in ~w(x y) && String.first(b) not in ~w(x y)
+          not is_reg?(k, ~w/z/) && not is_reg?(a, ~w/x y/) && not is_reg?(b, ~w/x y/)
         _ ->
           false
       end)
 
     rule3 =
       Enum.filter(input, fn
-        {k, {:xor, {:var, a}, {:var, b}}} ->
-          String.first(a) in ~w(x y) && String.first(b) in ~w(x y) && not Enum.any?(input, fn {_, {:xor, {:var, a}, {:var, b}}} -> a === k || b === k; _ -> false end)
+        {k, {:xor, {:var, a}, {:var, b}}} when a !== "x00" and b !== "y00" ->
+          is_reg?(a, ~w/x/) && is_reg?(b, ~w/y/) && not Enum.any?(input, fn {_, {:xor, {:var, a}, {:var, b}}} -> a === k || b === k; _ -> false end)
         _ ->
           false
       end)
 
     rule4 =
       Enum.filter(input, fn
-        {k, {:and, _, _}} ->
+        {k, {:and, {:var, a}, {:var, b}}} when a !== "x00" and b !== "y00"  ->
           not Enum.any?(input, fn {_, {:or, {:var, a}, {:var, b}}} -> a === k || b === k; _ -> false end)
         _ ->
           false
@@ -90,6 +86,7 @@ defmodule AOC.Y2024.Day24 do
     Stream.concat([rule1, rule2, rule3, rule4])
     |> Stream.map(&elem(&1, 0))
     |> Enum.sort()
+    |> Enum.dedup()
     |> Enum.join(",")
   end
 
