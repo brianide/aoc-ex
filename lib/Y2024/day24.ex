@@ -32,8 +32,10 @@ defmodule AOC.Y2024.Day24 do
   defp simplify_until_const({:const, n}, _), do: n
   defp simplify_until_const(exp, table), do: simplify(exp, table) |> simplify_until_const(table)
 
-  defp solve_for(table, var) do
-    Stream.unfold(0, fn acc -> {var <> String.pad_leading("#{acc}", 2, "0"), acc + 1} end)
+  defp key_stream(var), do: Stream.unfold(0, fn acc -> {var <> String.pad_leading("#{acc}", 2, "0"), acc + 1} end)
+
+  defp value_of(table, var) do
+    key_stream(var)
     |> Stream.map(&Map.get(table, &1))
     |> Stream.take_while(&(&1))
     |> Stream.map(&simplify_until_const(&1, table))
@@ -41,55 +43,54 @@ defmodule AOC.Y2024.Day24 do
     |> Enum.reduce(0, fn n, acc -> acc |> Bitwise.bsl(1) |> Bitwise.bor(n) end)
   end
 
-  def silver(input), do: solve_for(input, "z")
+  def silver(input), do: value_of(input, "z")
 
-  defp recur(exp, table, cache) do
-    case exp do
-      {:var, k} when is_map_key(cache, k) ->
-        {Map.get(cache, k), cache}
-      {:var, k} ->
-        {res, cache} = recur(Map.get(table, k), table, cache)
-        {res, Map.put(cache, k, res)}
-      {:const, n} ->
-        {n, cache}
-      {op, a, b} ->
-        {a, cache} = recur(a, table, cache)
-        {b, cache} = recur(b, table, cache)
-        case op do
-          :and -> Bitwise.band(a, b)
-          :or -> Bitwise.bor(a, b)
-          :xor -> Bitwise.bxor(a, b)
-        end
-        |> case do
-          res -> {res, cache}
-        end
-    end
-  end
-
-  defp solve_recur(table, var) do
-    Stream.unfold(0, fn acc -> {var <> String.pad_leading("#{acc}", 2, "0"), acc + 1} end)
-    |> Stream.take_while(&is_map_key(table, &1))
-    |> Enum.flat_map_reduce(%{}, fn key, cache ->
-      {res, cache} = recur({:var, key}, table, cache)
-      {[res], cache}
-    end)
-    |> case do
-      {res, cache} ->
-        res
-        |> Enum.reverse()
-        |> Enum.reduce(0, fn n, acc -> acc |> Bitwise.bsl(1) |> Bitwise.bor(n) end)
-        |> case do n -> {n, cache} end
-    end
-  end
+  # 1. If the output of a gate is z, then the operation has to be XOR unless it is the last bit.
+  # 2. If the output of a gate is not z and the inputs are not x, y then it has to be AND / OR, but not XOR.
+  # 3. If you have a XOR gate with inputs x, y, there must be another XOR gate with this gate as an input.
+  #    Search through all gates for an XOR-gate with this gate as an input; if it does not exist, your (original) XOR gate is faulty.
+  # 4. If you have an AND-gate, there must be an OR-gate with this gate as an input.
+  #    If that gate doesn't exist, the original AND gate is faulty.
 
   def gold(input) do
-    solve_recur(input, "z")
-    |> inspect()
-    # sum = solve_for(input, "x") + solve_for(input, "y")
-    # res = solve_for(input, "z")
-    # print = fn n -> n |> Integer.to_string(2) |> String.pad_leading(64, "0") |> IO.puts() end
-    # Bitwise.bxor(sum, res) |> print.()
-    # ""
+    last_z = key_stream("z") |> Stream.take_while(&is_map_key(input, &1)) |> Enum.reverse() |> List.first()
+
+    rule1 =
+      Enum.filter(input, fn
+        {k, {op, _, _}} when op !== :xor ->
+          String.first(k) === "z" && k !== last_z
+        _ ->
+          false
+      end)
+
+    rule2 =
+      Enum.filter(input, fn
+        {k, {:xor, {:var, a}, {:var, b}}} ->
+          String.first(k) !== "z" && String.first(a) not in ~w(x y) && String.first(b) not in ~w(x y)
+        _ ->
+          false
+      end)
+
+    rule3 =
+      Enum.filter(input, fn
+        {k, {:xor, {:var, a}, {:var, b}}} ->
+          String.first(a) in ~w(x y) && String.first(b) in ~w(x y) && not Enum.any?(input, fn {_, {:xor, {:var, a}, {:var, b}}} -> a === k || b === k; _ -> false end)
+        _ ->
+          false
+      end)
+
+    rule4 =
+      Enum.filter(input, fn
+        {k, {:and, _, _}} ->
+          not Enum.any?(input, fn {_, {:or, {:var, a}, {:var, b}}} -> a === k || b === k; _ -> false end)
+        _ ->
+          false
+      end)
+
+    Stream.concat([rule1, rule2, rule3, rule4])
+    |> Stream.map(&elem(&1, 0))
+    |> Enum.sort()
+    |> Enum.join(",")
   end
 
 end
