@@ -52,6 +52,7 @@ defmodule AOC.Y2024.Day12 do
     for letter <- Map.keys(input),
         tiles = Map.get(input, letter) do
           find_islands_for_letter(tiles, letter)
+          |> tap(&IO.inspect({letter, &1}))
         end
     |> Enum.flat_map(&(&1))
   end
@@ -73,7 +74,7 @@ defmodule AOC.Y2024.Day12 do
     else
       seen = MapSet.put(seen, {pos, dir})
       pixels(pos, dir)
-      |> Enum.find(fn {p, _} -> is_map_key(tiles, p) end)
+      |> Enum.find(fn {p, {dir, _}} -> {p, dir} in tiles end)
       |> case do
         nil ->
           trace_contour(pos, Dir.turn_right(dir), tiles, sides + 1, seen)
@@ -84,11 +85,14 @@ defmodule AOC.Y2024.Day12 do
   end
 
   defp calc_sides(tiles) do
-    IO.inspect(tiles)
-    {pos, dir} = Enum.find(tiles, &(&1))
-    {sides, seen} = trace_contour(pos, dir, tiles)
-    tiles = Map.drop(tiles, Enum.map(seen, &elem(&1, 0)))
-    sides + calc_sides(tiles)
+    if MapSet.size(tiles) === 0 do
+      0
+    else
+      {pos, dir} = Enum.find(tiles, &(&1))
+      {sides, seen} = trace_contour(pos, dir, tiles)
+      tiles = MapSet.difference(tiles, seen)
+      sides + calc_sides(tiles)
+    end
   end
 
   def solve(input) do
