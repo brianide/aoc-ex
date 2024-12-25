@@ -51,20 +51,26 @@ defmodule AOC.Y2024.Day12 do
     for letter <- Map.keys(input),
         tiles = Map.get(input, letter) do
           find_islands_for_letter(tiles, letter)
-          # |> tap(&IO.inspect({letter, &1}))
+          |> tap(&IO.inspect/1)
         end
     |> Enum.flat_map(&(&1))
   end
 
+  defp path(pos, dir, path) do
+    Enum.scan([:stay | path], {pos, dir}, fn move, {pos, dir} ->
+      case move do
+        :stay -> {pos, dir}
+        :forward -> {Point.add(pos, Dir.offset(dir)), dir}
+        :left -> {pos, Dir.turn_left(dir)}
+        :right -> {pos, Dir.turn_right(dir)}
+      end
+    end)
+    |> Enum.reverse()
+  end
+
   defp pixels(pos, dir) do
-    case dir do
-      :north -> for c <- -1..1, do: {-1, c}
-      :south -> for c <- 1..-1, do: {1, c}
-      :east -> for r <- -1..1, do: {r, 1}
-      :west -> for r <- 1..-1, do: {r, -1}
-    end
-    |> Stream.map(&Point.add(&1, pos))
-    |> Stream.zip([{Dir.turn_left(dir), 1}, {dir, 0}, {Dir.turn_right(dir), 3}])
+    [{[:forward, :left, :forward], 1}, {[:forward], 0}, {[:right, :forward, :left, :forward], 2}]
+    |> Enum.map(fn {moves, cost} -> {path(pos, dir, moves), cost} end)
   end
 
   defp trace_contour(pos, dir, tiles, sides \\ 0, seen \\ MapSet.new()) do
@@ -74,12 +80,12 @@ defmodule AOC.Y2024.Day12 do
     else
       seen = MapSet.put(seen, {pos, dir})
       pixels(pos, dir)
-      |> Enum.find(fn {p, {dir, _}} -> {p, dir} in tiles end)
+      |> Enum.find(fn {[state | _], _} -> state in tiles end)
       |> case do
         nil ->
           trace_contour(pos, Dir.turn_right(dir), tiles, sides + 1, seen)
-        {n_pos, {n_dir, cost}} ->
-          seen = if cost !== 3, do: seen, else: MapSet.put(seen, {pos, Dir.turn_right(dir)})
+        {[{n_pos, n_dir} | rest], cost} ->
+          seen = MapSet.union(seen, MapSet.new(rest))
           trace_contour(n_pos, n_dir, tiles, sides + cost, seen)
       end
     end
@@ -92,9 +98,9 @@ defmodule AOC.Y2024.Day12 do
       {pos, dir} = Enum.find(tiles, &(&1))
       {sides, seen} = trace_contour(pos, dir, tiles)
       tiles = MapSet.difference(tiles, seen)
-      IO.inspect(tiles)
       sides + calc_sides(tiles)
     end
+    |> tap(&IO.inspect/1)
   end
 
   def solve(input) do
