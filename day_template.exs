@@ -1,4 +1,4 @@
-defmodule AOC.Y2024.Day!DAY! do
+defmodule AOC.Y!YEAR!.Day!DAY! do
   @moduledoc title: "!NAME!"
   @moduledoc url: "https://adventofcode.com/!YEAR!/day/!DAY!"
 

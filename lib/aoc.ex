@@ -1,6 +1,7 @@
 defmodule AOC do
 
   defp solutions, do: %{
+    2019 => AOC.Y2019.Index.solutions(),
     2024 => AOC.Y2024.Index.solutions()
   }
 
