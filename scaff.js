@@ -15,7 +15,7 @@ function wait(millis) {
 }
 
 const [year, days, mode] = Deno.args;
-const cookie = await Deno.readTextFile(".cookie.dat");
+const cookie = await Deno.readTextFile(".cookie.dat").then(r => r.trim());
 
 // Make directories if they're not already in place
 await Deno.mkdir(`lib/Y${year}`, { recursive: true });
@@ -46,7 +46,8 @@ if (mode === "input") {
 
 for (const day of days.split(",").map(n => +n)) {
     // Get problem name
-    const page = await fetch(`https://adventofcode.com/${year}/day/${day}`).then(r => r.text());
+    const url = `https://adventofcode.com/${year}/day/${day}`;
+    const page = await fetch(url).then(r => r.text());
     const name = /<h2>--- Day \d+: (.+) ---<\/h2>/.exec(page)[1];
     console.log(`Getting problem name`);
 
