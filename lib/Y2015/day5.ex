@@ -6,45 +6,41 @@ defmodule AOC.Y2015.Day5 do
 
   def parse(input), do: String.split(input, ~r/\n/) |> Enum.map(&String.to_charlist/1)
 
-  defp check_line(line) do
-    Enum.count(line, fn n -> n in ~c"aeiou" end) >= 3
-    && Stream.chunk_every(line, 2, 1, :discard) |> Enum.any?(fn [a, b] -> a == b end)
-    && Stream.chunk_every(line, 2, 1, :discard) |> Enum.all?(fn pr -> pr not in [~c"ab", ~c"cd", ~c"pq", ~c"xy"] end)
-  end
+  defp window(a, n), do: Stream.chunk_every(a, n, 1, :discard)
 
-  def silver(input) do
-    Task.async_stream(input, &check_line/1)
+  defp solve(input, pred) do
+    Task.async_stream(input, pred)
     |> Enum.reduce(0, fn
       {:ok, true}, acc -> acc + 1
       _, acc -> acc
     end)
   end
 
-  defp check_gold_pair([_, _]), do: false
-  defp check_gold_pair([a, b | rest]) do
-    Stream.chunk_every(rest, 2, 1, :discard)
-    |> Enum.any?(fn pr -> pr == [a, b] end)
+  defp check_silver(line) do
+    Enum.count(line, fn n -> n in ~c"aeiou" end) >= 3
+    && window(line, 2) |> Enum.any?(fn [a, b] -> a == b end)
+    && window(line, 2) |> Enum.all?(&(&1 not in [~c"ab", ~c"cd", ~c"pq", ~c"xy"]))
+  end
+
+  def silver(input), do: solve(input, &check_silver/1)
+
+  defp rule_4([_, _]), do: false
+  defp rule_4([a, b | rest]) do
+    window(rest, 2)
+    |> Enum.any?(&(&1 == [a, b]))
     |> case do
       true -> true
-      false -> check_gold_pair([b | rest])
+      false -> rule_4([b | rest])
     end
   end
 
-  defp check_gold_triple(line) do
-    Stream.chunk_every(line, 3, 1, :discard)
+  defp rule_5(line) do
+    window(line, 3)
     |> Enum.any?(fn [a, _, b] -> a == b end)
   end
 
-  defp check_line_gold(line) do
-    check_gold_pair(line) && check_gold_triple(line)
-  end
+  defp check_gold(line), do: rule_4(line) && rule_5(line)
 
-  def gold(input) do
-    Task.async_stream(input, &check_line_gold/1)
-    |> Enum.reduce(0, fn
-      {:ok, true}, acc -> acc + 1
-      _, acc -> acc
-    end)
-  end
+  def gold(input), do: solve(input, &check_gold/1)
 
 end
