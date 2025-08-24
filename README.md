@@ -1,7 +1,7 @@
 # aoc-ex
 Advent of Code solutions in Elixir
 
-Run solutions with `mix aoc.solve <year> <day> <part> <input-root>`.
+Run solutions with `mix aoc.solve -r <input_root> -p <part> -y <year> -d <day> [--bench]`.
 
 The `part` argument should be `silver`, `gold`, or `both`, or just the first letter of the respective word.
 

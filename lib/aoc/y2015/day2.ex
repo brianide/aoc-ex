@@ -2,7 +2,7 @@ defmodule AOC.Y2015.Day2 do
   @moduledoc title: "I Was Told There Would Be No Math"
   @moduledoc url: "https://adventofcode.com/2015/day/2"
 
-  def solver, do: AOC.Scaffold.double_solver(2015, 2, &parse/1, &solve/1)
+  use AOC.Solvers.Double, [2015, 2, &parse/1, &solve/1]
 
   def parse(input) do
     Regex.scan(~r/\d+/, input)
