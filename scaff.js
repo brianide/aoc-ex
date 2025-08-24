@@ -18,7 +18,7 @@ const [year, days, mode] = Deno.args;
 const cookie = await Deno.readTextFile(".cookie.dat").then(r => r.trim());
 
 // Make directories if they're not already in place
-await Deno.mkdir(`lib/y${year}`, { recursive: true });
+await Deno.mkdir(`lib/aoc/y${year}`, { recursive: true });
 await Deno.mkdir(`input/real`, { recursive: true });
 
 async function getInput(year, day) {
@@ -44,7 +44,7 @@ if (mode === "input") {
     Deno.exit(0);
 }
 
-for (const day of days.split(",").map(n => +n)) {
+for (const day of days.split(",")) {
     // Get problem name
     const url = `https://adventofcode.com/${year}/day/${day}`;
     const page = await fetch(url).then(r => r.text());
@@ -55,7 +55,7 @@ for (const day of days.split(",").map(n => +n)) {
     const fileText = (await Deno.readTextFile("day_template.exs")).replace(/![A-Z]+?!/g, k => {
         return { year, day, name }[k.slice(1, -1).toLowerCase()];
     });
-    await Deno.writeTextFile(`lib/Y${year}/day${day}.ex`, fileText);
+    await Deno.writeTextFile(`lib/aoc/y${year}/day${day}.ex`, fileText);
     console.log(`Making file for solution`);
 
     // Get problem input
