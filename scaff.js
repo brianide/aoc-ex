@@ -18,11 +18,11 @@ const [year, days, mode] = Deno.args;
 const cookie = await Deno.readTextFile(".cookie.dat").then(r => r.trim());
 
 // Make directories if they're not already in place
-await Deno.mkdir(`lib/Y${year}`, { recursive: true });
-await Deno.mkdir(`input/real/${year}`, { recursive: true });
+await Deno.mkdir(`lib/y${year}`, { recursive: true });
+await Deno.mkdir(`input/real`, { recursive: true });
 
 async function getInput(year, day) {
-    const dest = `input/real/${year}/day${day}.txt`;
+    const dest = `input/real/${year}-day${day.padStart(2, "0")}.txt`;
     if (await exists(dest))
         return;
     console.log(`Pulling input for day ${day}`);

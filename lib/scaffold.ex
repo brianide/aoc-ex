@@ -9,33 +9,18 @@ defmodule AOC.Scaffold do
     |> Enum.map(&(case &1 do :silver -> silver.(input); :gold -> gold.(input) end))
   end
 
-  # defp solver(year, day, mod, pre, silver, gold) do
-  #   {:input, [], mod} ++ pre ++ [
-  #     quote do get_parts(parts, unquote(silver), unquote(gold)) end,
-  #     quote do Enum.join("\n") end
-  #   ]
-  #   |> Enum.reduce(&Macro.pipe(&1))
+  defp get_raw(root, year, day) do
+    day = String.pad_leading("#{day}", 2, "0")
 
-  #   quote do
-  #     fn [parts, path] ->
-  #       input = File.read!("#{path}/#{year}/day#{day}.txt") |> String.trim()
-
-  #       :timer.tc(fn ->
-  #         get_parts(input, parts, silver, gold)
-  #         |> Enum.join("\n")
-  #       end)
-  #     end
-  #   end
-  # end
-
-  # defmacro doubler_solver(year, day, parse, solve) do
-  #   solver(year, day, __CALLER__, [parse, solve], &elem(&1, 0), &elem(&1, 1))
-  # end
+    "#{root}/#{year}-day#{day}.txt"
+    |> File.read!()
+    |> String.trim()
+  end
 
   @doc "Creates a solver where each part performs its own parsing."
   def simple_solver(year, day, silver, gold) do
     fn [parts, path] ->
-      input = File.read!("#{path}/#{year}/day#{day}.txt") |> String.trim()
+      input = get_raw(path, year, day)
 
       :timer.tc(fn ->
         input
@@ -48,7 +33,7 @@ defmodule AOC.Scaffold do
   @doc "Creates a solver where both parts receive identical input from a common parsing function."
   def chain_solver(year, day, parse, silver, gold) do
     fn [parts, path] ->
-      raw = File.read!("#{path}/#{year}/day#{day}.txt") |> String.trim()
+      raw = get_raw(path, year, day)
 
       :timer.tc(fn ->
         parse.(raw)
@@ -61,7 +46,7 @@ defmodule AOC.Scaffold do
   @doc "Creates a solver where both parts are solved by the same function."
   def double_solver(year, day, parse, solve) do
     fn [parts, path] ->
-      raw = File.read!("#{path}/#{year}/day#{day}.txt") |> String.trim()
+      raw = get_raw(path, year, day)
 
       :timer.tc(fn ->
         parse.(raw)
