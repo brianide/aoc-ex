@@ -2,7 +2,7 @@ defmodule AOC.Y2024.Day20 do
   @moduledoc title: "Race Condition"
   @moduledoc url: "https://adventofcode.com/2024/day/20"
 
-  def solver, do: AOC.Scaffold.double_solver(2024, 20, &parse/1, &solve/1)
+  use AOC.Solvers.Double, [2024, 20, &parse/1, &solve/1]
 
   def parse(input) do
     case AOC.Util.parse_map(input, dims: false, ignore: [?#]) do

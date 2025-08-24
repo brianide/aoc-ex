@@ -2,7 +2,7 @@ defmodule AOC.Y!YEAR!.Day!DAY! do
   @moduledoc title: "!NAME!"
   @moduledoc url: "https://adventofcode.com/!YEAR!/day/!DAY!"
 
-  def solver, do: AOC.Scaffold.chain_solver(!YEAR!, !DAY!, &parse/1, &silver/1, &gold/1)
+  use AOC.Solvers.Chain, [!YEAR!, !DAY!, &parse/1, &silver/1, &gold/1]
 
   def parse(input) do
     input

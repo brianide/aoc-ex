@@ -6,7 +6,7 @@ defmodule AOC.Y2024.Day18 do
 
   @size 70
 
-  def solver, do: AOC.Scaffold.chain_solver(2024, 18, &parse/1, &silver/1, &gold/1)
+  use AOC.Solvers.Chain, [2024, 18, &parse/1, &silver/1, &gold/1]
 
   def parse(input) do
     for [s] <- Regex.scan(~r/\d+/, input) do String.to_integer(s) end

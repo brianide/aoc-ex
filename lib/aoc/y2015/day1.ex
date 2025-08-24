@@ -2,7 +2,7 @@ defmodule AOC.Y2015.Day1 do
   @moduledoc title: "Not Quite Lisp"
   @moduledoc url: "https://adventofcode.com/2015/day/1"
 
-  # def solver, do: AOC.Scaffold.chain_solver(2015, 1, &parse/1, &silver/1, &gold/1)
+  # use AOC.Solvers.Chain, [2015, 1, &parse/1, &silver/1, &gold/1]
   use AOC.Solvers.Chain, [2015, 1, &parse/1, &silver/1, &gold/1]
 
   def parse(input), do: String.to_charlist(input)

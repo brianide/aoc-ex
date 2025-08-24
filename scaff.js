@@ -58,13 +58,6 @@ for (const day of days.split(",").map(n => +n)) {
     await Deno.writeTextFile(`lib/Y${year}/day${day}.ex`, fileText);
     console.log(`Making file for solution`);
 
-    // Add module to index
-    const projText = (await Deno.readTextFile(`lib/Y${year}/index.ex`)).split("\n");
-    projText.splice(projText.findIndex(l => l.includes("## NEXT ##")), 0, `    {AOC.Y${year}.Day${day}, "${name}"},`);
-    await Deno.writeTextFile(`lib/Y${year}/index.ex`, projText.join("\n"));
-    await wait(1500);
-    console.log(`Adding module to index`);
-
     // Get problem input
     await getInput(year, day);
 

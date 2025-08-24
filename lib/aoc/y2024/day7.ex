@@ -2,7 +2,7 @@ defmodule AOC.Y2024.Day7 do
   @moduledoc title: "Bridge Repair"
   @moduledoc url: "https://adventofcode.com/2024/day/7"
 
-  def solver, do: AOC.Scaffold.chain_solver(2024, 7, &parse/1, &silver/1, &gold/1)
+  use AOC.Solvers.Chain, [2024, 7, &parse/1, &silver/1, &gold/1]
 
   defp parse_line(line) do
     Regex.scan(~r/\d+/, line)

@@ -2,7 +2,7 @@ defmodule AOC.Y2024.Day12 do
   @moduledoc title: "Garden Groups"
   @moduledoc url: "https://adventofcode.com/2024/day/12"
 
-  def solver, do: AOC.Scaffold.double_solver(2024, 12, &parse/1, &solve/1)
+  use AOC.Solvers.Double, [2024, 12, &parse/1, &solve/1]
 
   alias AOC.Util.Point
   alias AOC.Util.Direction, as: Dir

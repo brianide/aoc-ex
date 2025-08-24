@@ -4,7 +4,7 @@ defmodule AOC.Y2024.Day11 do
 
   use Memoize
 
-  def solver, do: AOC.Scaffold.chain_solver(2024, 11, &parse/1, &solve(&1, 25), &solve(&1, 75))
+  use AOC.Solvers.Chain, [2024, 11, &parse/1, &solve(&1, 25), &solve(&1, 75)]
 
   def parse(input) do
     for [s] <- Regex.scan(~r/\d+/, input), do: String.to_integer(s)

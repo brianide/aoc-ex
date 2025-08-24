@@ -2,7 +2,7 @@ defmodule AOC.Y2024.Day15 do
   @moduledoc title: "Warehouse Woes"
   @moduledoc url: "https://adventofcode.com/2024/day/15"
 
-  def solver, do: AOC.Scaffold.chain_solver(2024, 15, &parse/1, &silver/1, &gold/1)
+  use AOC.Solvers.Chain, [2024, 15, &parse/1, &silver/1, &gold/1]
 
   defp parse_map(input) do
     case AOC.Util.parse_map(input, dims: false, ignore: [?.]) do
