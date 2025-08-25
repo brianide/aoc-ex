@@ -12,19 +12,24 @@ defmodule AOC.Y2015.Day6 do
     end
   end
 
+  defguardp between?(n, l, u) when l <= n and n <= u
+  defguardp contained?(p, b1, b2) when between?(elem(p, 0), elem(b1, 0), elem(b2, 0)) and between?(elem(p, 1), elem(b1, 1), elem(b2, 1))
+
+  @size 1000
   def silver(input) do
-    for {act, {r1, c1}, {r2, c2}} <- input,
-        r <- r1..r2,
-        c <- c1..c2,
-        key = r * 999 + c,
-        reduce: Arrays.new(Stream.duplicate(false, 999 * 999)) do acc ->
-          case act do
-            :on -> put_in(acc[key], true)
-            :off -> put_in(acc[key], false)
-            :toggle -> update_in(acc[key], &(not &1))
-          end
+    input = Enum.reverse(input)
+    for r <- 0..(@size - 1),
+        c <- 0..(@size - 1),
+        p = {r, c},
+        reduce: 0 do acc ->
+          Enum.reduce_while(input, 0, fn
+            {:toggle, b1, b2}, flip when contained?(p, b1, b2) -> {:cont, 1 - flip}
+            {:on, b1, b2}, flip when contained?(p, b1, b2) -> {:halt, 1 - flip}
+            {:off, b1, b2}, flip when contained?(p, b1, b2) -> {:halt, flip}
+            _, flip -> {:cont, flip}
+          end)
+          |> case do n -> acc + n end
         end
-    |> Enum.count(fn n -> n end)
   end
 
   def gold(input) do
