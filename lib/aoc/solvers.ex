@@ -6,13 +6,21 @@ defmodule AOC.Solvers.Util do
     end
   end
 
-  def get_parts(input, parts, silver, gold) do
+  def get_parts(input, parts, silver, gold, opts \\ []) do
+    parallel = opts[:parallel]
     case parts do
-      s when s in ["s", "silver"] -> [:silver]
-      s when s in ["g", "gold"] -> [:gold]
-      s when s in ["b", "both"] -> [:silver, :gold]
+      s when s in ["s", "silver"] ->
+        [silver.(input)]
+      s when s in ["g", "gold"] ->
+        [gold.(input)]
+      s when s in ["b", "both"] when parallel ->
+        Task.async_stream([silver, gold], fn func ->
+          func.(input)
+        end)
+        |> Enum.map(fn {:ok, r} -> r end)
+      s when s in ["b", "both"] ->
+        [silver.(input), gold.(input)]
     end
-    |> Enum.map(&(case &1 do :silver -> silver.(input); :gold -> gold.(input) end))
   end
 end
 
@@ -21,7 +29,7 @@ defmodule AOC.Solvers.Simple do
 
   import AOC.Solvers.Util
 
-  defmacro __using__([year, day, silver_fn, gold_fn]) do
+  defmacro __using__([year, day, silver_fn, gold_fn | opts]) do
     quote do
       def solve_day(input_root, parts) do
         reader = unquote(input_reader(year, day))
@@ -29,7 +37,7 @@ defmodule AOC.Solvers.Simple do
 
         :timer.tc(fn ->
           raw
-          |> get_parts(parts, unquote(silver_fn), unquote(gold_fn))
+          |> get_parts(parts, unquote(silver_fn), unquote(gold_fn), unquote(opts))
           |> Enum.join("\n")
         end)
       end
@@ -42,7 +50,7 @@ defmodule AOC.Solvers.Chain do
 
   import AOC.Solvers.Util
 
-  defmacro __using__([year, day, parse_fn, silver_fn, gold_fn]) do
+  defmacro __using__([year, day, parse_fn, silver_fn, gold_fn | opts]) do
     quote do
       def solve_day(input_root, parts) do
         reader = unquote(input_reader(year, day))
@@ -51,7 +59,7 @@ defmodule AOC.Solvers.Chain do
         :timer.tc(fn ->
           raw
           |> then(unquote(parse_fn))
-          |> get_parts(parts, unquote(silver_fn), unquote(gold_fn))
+          |> get_parts(parts, unquote(silver_fn), unquote(gold_fn), unquote(opts))
           |> Enum.join("\n")
         end)
       end
