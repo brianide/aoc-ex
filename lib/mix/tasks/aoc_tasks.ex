@@ -30,3 +30,12 @@ defmodule Mix.Tasks.Aoc.Solve do
     end
   end
 end
+
+defmodule Mix.Tasks.Aoc.Doc do
+  def run(args) do
+    {:ok, mods} = :application.get_key(:aoc_ex, :modules)
+    for mod <- mods do
+      Module.get_attribute(mod, :aoc) |> IO.inspect()
+    end
+  end
+end

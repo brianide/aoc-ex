@@ -1,9 +1,13 @@
 defmodule AOC.Y2015.Day7 do
-  @moduledoc title: "Some Assembly Required"
-  @moduledoc url: "https://adventofcode.com/2015/day/7"
+
+  use AOC.Solution, date: {2015, 7}, scheme: [:and_then, &parse/1, &silver/1, &gold/2]
+
+  @aoc title: "Some Assembly Required"
+  @aoc url: "https://adventofcode.com/2015/day/7"
+  @aoc complete: true
+  @aoc favorite: true
 
   use AOC.Solvers.AndThen, [2015, 7, &parse/1, &silver/1, &gold/2]
-
   alias Bitwise, as: Bit
 
   def parse_term(term) do
