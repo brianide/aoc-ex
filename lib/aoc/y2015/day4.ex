@@ -4,9 +4,7 @@ defmodule AOC.Y2015.Day4 do
 
   use AOC.Solvers.Double, [2015, 4, &parse/1, &solve/1]
 
-  def parse(input) do
-    input
-  end
+  def parse(input), do: input
 
   defp hash_md5(str), do: :crypto.hash(:md5, str) |> Base.encode16()
 
