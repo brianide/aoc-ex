@@ -22,7 +22,6 @@ defmodule AocEx.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:memoize, "~> 1.4"},
       {:arrays, "~> 2.1"},
       {:priority_queue, "~> 1.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},

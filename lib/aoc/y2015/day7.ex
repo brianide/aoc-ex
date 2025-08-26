@@ -2,7 +2,7 @@ defmodule AOC.Y2015.Day7 do
   @moduledoc title: "Some Assembly Required"
   @moduledoc url: "https://adventofcode.com/2015/day/7"
 
-  use AOC.Solvers.Double, [2015, 7, &parse/1, &solve/1]
+  use AOC.Solvers.AndThen, [2015, 7, &parse/1, &silver/1, &gold/2]
 
   alias Bitwise, as: Bit
 
@@ -34,15 +34,13 @@ defmodule AOC.Y2015.Day7 do
     |> then(&elem(&1, 0))
   end
 
-  def simplify({:const, n}, _, mem), do: {n, mem}
+  def simplify({:const, n}, _table, mem), do: {n, mem}
+
+  def simplify({:symbol, term}, _table, mem) when is_map_key(mem, term), do: {mem[term], mem}
 
   def simplify({:symbol, term}, table, mem) do
-    if is_map_key(mem, term) do
-      {mem[term], mem}
-    else
-      {res, mem} = simplify(table[term], table, mem)
-      {res, put_in(mem[term], res)}
-    end
+    {res, mem} = simplify(table[term], table, mem)
+    {res, put_in(mem[term], res)}
   end
 
   def simplify({:una, op, a}, table, mem) do
@@ -56,10 +54,11 @@ defmodule AOC.Y2015.Day7 do
     {op.(a, b), mem}
   end
 
-  def solve(table) do
-    silv = simplify(table)
-    gold = simplify(put_in(table["b"], {:const, silv}))
-    {silv, gold}
+  def silver(table) do
+    res = simplify(table)
+    {res, res}
   end
+
+  def gold(table, silv), do: simplify(put_in(table["b"], {:const, silv}))
 
 end
