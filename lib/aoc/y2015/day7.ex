@@ -7,7 +7,6 @@ defmodule AOC.Y2015.Day7 do
     complete: true,
     favorite: true
 
-  use AOC.Solvers.AndThen, [2015, 7, &parse/1, &silver/1, &gold/2]
   alias Bitwise, as: Bit
 
   def parse_term(term) do

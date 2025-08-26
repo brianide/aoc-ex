@@ -35,6 +35,12 @@ defmodule AOC.Solution do
         end
   end
 
+  @moduledoc """
+  Creates a solver where each part performs its own parsing and processing.
+
+  Both solution functions receive the raw input file text. This is intended for problems where
+  parts 1 and 2 require different parsing, and/or are significantly different problems.
+  """
   def run_solution({:separate, silv_fn, gold_fn}, part, path) do
     raw = File.read!(path) |> String.trim()
 
@@ -47,6 +53,12 @@ defmodule AOC.Solution do
     end)
   end
 
+  @moduledoc """
+  Creates a solver where both parts receive identical input from a shared parsing function.
+
+  `parse_fn` is run once, and its output is passed to each of the solution functions. This reduces
+  the total runtime if both parts are being solved in one run.
+  """
   def run_solution({:shared, parse_fn, silv_fn, gold_fn}, part, path) do
     raw = File.read!(path) |> String.trim()
 
@@ -60,6 +72,11 @@ defmodule AOC.Solution do
     end)
   end
 
+  @moduledoc """
+  Creates a solver where both parts are solved at once by the same function.
+
+  `solve_fn` should return a two-element tuple containing the solutions for part 1 and 2.
+  """
   def run_solution({:once, parse_fn, solve_fn}, part, path) do
     raw = File.read!(path) |> String.trim()
 
@@ -73,6 +90,13 @@ defmodule AOC.Solution do
     end)
   end
 
+  @doc """
+  Solver where the second part relies on data from the first.
+
+  `silver_vn` should return a tuple, where the first element is the solution for part 1, and the
+  second element is an arbitrary atom, which (in addition to the parsed input) is passed to
+  `gold_fn`.
+  """
   def run_solution({:chain, parse_fn, silv_fn, gold_fn}, part, path) do
     raw = File.read!(path) |> String.trim()
 
