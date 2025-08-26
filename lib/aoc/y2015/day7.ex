@@ -14,7 +14,7 @@ defmodule AOC.Y2015.Day7 do
   end
 
   def parse(input) do
-    for line <- String.splitter(input, "\n"),
+    for line <- String.splitter(input, "\n", trim: true),
         tokens = Regex.scan(~r/\w+/, line, capture: :first),
         tokens = Enum.map(tokens, &List.first/1) do
           case tokens do
