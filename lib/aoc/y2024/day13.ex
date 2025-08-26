@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day13 do
-  @moduledoc title: "Claw Contraption"
-  @moduledoc url: "https://adventofcode.com/2024/day/13"
 
-  use AOC.Solvers.Chain, [2024, 13, &parse/1, &solve/1, &solve(&1, 10 ** 13)]
+  use AOC.Solution,
+    title: "Claw Contraption",
+    url: "https://adventofcode.com/2024/day/13",
+    scheme: {:shared, &parse/1, &solve/1, &solve(&1, 10 ** 13)}
 
   def parse(input) do
     Regex.scan(~r/Button A: X\+(\d+), Y\+(\d+)\nButton B: X\+(\d+), Y\+(\d+)\nPrize: X=(\d+), Y=(\d+)/, input)

@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day3 do
-  @moduledoc title: "Mull It Over"
-  @moduledoc url: "https://adventofcode.com/2024/day/3"
 
-  use AOC.Solvers.Double, [2024, 3, &parse/1, &solve/1]
+  use AOC.Solution,
+    title: "Mull It Over",
+    url: "https://adventofcode.com/2024/day/3",
+    scheme: {:once, &parse/1, &solve/1}
 
   def parse(input) do
     Regex.scan(~r/(mul|do|don't)(?:\(\)|\((\d+),(\d+)\))/, input)

@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day8 do
-  @moduledoc title: "Resonant Collinearity"
-  @moduledoc url: "https://adventofcode.com/2024/day/8"
 
-  use AOC.Solvers.Chain, [2024, 8, &parse/1, &solve(&1, false), &solve(&1, true)]
+  use AOC.Solution,
+    title: "Resonant Collinearity",
+    url: "https://adventofcode.com/2024/day/8",
+    scheme: {:shared, &parse/1, &solve(&1, false), &solve(&1, true)}
 
   def parse(input) do
     case AOC.Util.parse_map(input, ignore: [?.]) do

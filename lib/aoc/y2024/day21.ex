@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day21 do
-  @moduledoc title: "Keypad Conundrum"
-  @moduledoc url: "https://adventofcode.com/2024/day/21"
 
-  use AOC.Solvers.Chain, [2024, 21, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "Keypad Conundrum",
+    url: "https://adventofcode.com/2024/day/21",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   defmodule Grids do
     import AOC.Sigils

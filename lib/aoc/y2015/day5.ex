@@ -1,8 +1,9 @@
 defmodule AOC.Y2015.Day5 do
-  @moduledoc title: "Doesn't He Have Intern-Elves For This?"
-  @moduledoc url: "https://adventofcode.com/2015/day/5"
 
-  use AOC.Solvers.Chain, [2015, 5, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "Doesn't He Have Intern-Elves For This?",
+    url: "https://adventofcode.com/2015/day/5",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   def parse(input), do: String.split(input, ~r/\n/) |> Enum.map(&String.to_charlist/1)
 

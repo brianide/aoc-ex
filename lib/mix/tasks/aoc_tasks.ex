@@ -12,14 +12,19 @@ defmodule Mix.Tasks.Aoc.Solve do
     AOC.Solution.solutions()
     |> get_in([opts[:year], opts[:day]])
     |> case do mod ->
+      run_opts = [%{
+        input_root: opts[:root],
+        part: AOC.Util.parse_parts(opts[:part])
+      }]
+
       case opts[:bench] do
         nil ->
-          {_, res} = apply(mod, :solve_day, [opts[:root], opts[:part]])
+          {_, res} = apply(mod, :__aoc_run__, run_opts)
           IO.puts(res)
 
         count ->
           for _ <- 1..count, reduce: {0, nil} do {time, _res} ->
-            {t, r} = apply(mod, :solve_day, [opts[:root], opts[:part]])
+            {t, r} = apply(mod, :__aoc_run__, run_opts)
             {time + t, r}
           end
           |> case do {time, res} ->

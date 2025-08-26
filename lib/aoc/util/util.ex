@@ -4,6 +4,10 @@ defmodule AOC.Util do
   def sign(x) when x < 0, do: -1
   def sign(_), do: 0
 
+  def parse_parts(s) when s in ["s", "silver"], do: :silver
+  def parse_parts(s) when s in ["g", "gold"], do: :gold
+  def parse_parts(s) when s in ["b", "both"], do: :both
+
   @doc """
   Parses a rectangular map from `str`, producing a map associating characters/graphemes to lists of
   coordinates at which they occur. Optionally returns the dimensions of the map.

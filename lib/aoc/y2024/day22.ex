@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day22 do
-  @moduledoc title: "Monkey Market"
-  @moduledoc url: "https://adventofcode.com/2024/day/22"
 
-  use AOC.Solvers.Chain, [2024, 22, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "Monkey Market",
+    url: "https://adventofcode.com/2024/day/22",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   alias Bitwise, as: Bit
 

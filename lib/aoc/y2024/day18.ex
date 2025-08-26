@@ -1,12 +1,13 @@
 defmodule AOC.Y2024.Day18 do
-  @moduledoc title: "RAM Run"
-  @moduledoc url: "https://adventofcode.com/2024/day/18"
+
+  use AOC.Solution,
+    title: "RAM Run",
+    url: "https://adventofcode.com/2024/day/18",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   alias AOC.Util
 
   @size 70
-
-  use AOC.Solvers.Chain, [2024, 18, &parse/1, &silver/1, &gold/1]
 
   def parse(input) do
     for [s] <- Regex.scan(~r/\d+/, input) do String.to_integer(s) end

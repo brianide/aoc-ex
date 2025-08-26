@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day11 do
-  @moduledoc title: "Plutonian Pebbles"
-  @moduledoc url: "https://adventofcode.com/2024/day/11"
 
-  use AOC.Solvers.AndThen, [2024, 11, &parse/1, &silver/1, &gold/2]
+  use AOC.Solution,
+    title: "Plutonian Pebbles",
+    url: "https://adventofcode.com/2024/day/11",
+    scheme: {:chain, &parse/1, &silver/1, &gold/2}
 
   def parse(input) do
     String.split(input, " ", trim: true)

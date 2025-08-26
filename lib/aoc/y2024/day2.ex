@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day2 do
-  @moduledoc title: "Red-Nosed Reports"
-  @moduledoc url: "https://adventofcode.com/2024/day/2"
 
-  use AOC.Solvers.Double, [2024, 2, &parse/1, &solve/1]
+  use AOC.Solution,
+    title: "Red-Nosed Reports",
+    url: "https://adventofcode.com/2024/day/2",
+    scheme: {:once, &parse/1, &solve/1}
 
   def parse(input) do
     String.split(input, "\n")

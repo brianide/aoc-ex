@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day14 do
-  @moduledoc title: "Restroom Redoubt"
-  @moduledoc url: "https://adventofcode.com/2024/day/14"
 
-  use AOC.Solvers.Chain, [2024, 14, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "Restroom Redoubt",
+    url: "https://adventofcode.com/2024/day/14",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   def parse(input) do
     Regex.scan(~r/p=(-?\d+),(-?\d+) v=(-?\d+),(-?\d+)/, input)

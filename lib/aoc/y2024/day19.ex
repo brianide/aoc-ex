@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day19 do
-  @moduledoc title: "Linen Layout"
-  @moduledoc url: "https://adventofcode.com/2024/day/19"
 
-  use AOC.Solvers.Double, [2024, 19, &parse/1, &solve/1]
+  use AOC.Solution,
+    title: "Linen Layout",
+    url: "https://adventofcode.com/2024/day/19",
+    scheme: {:once, &parse/1, &solve/1}
 
   def parse(input) do
     [towels, designs] = String.split(input, "\n\n")

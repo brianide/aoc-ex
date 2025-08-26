@@ -1,8 +1,9 @@
 defmodule AOC.Y2019.Day1 do
-  @moduledoc title: "The Tyranny of the Rocket Equation"
-  @moduledoc url: "https://adventofcode.com/2019/day/1"
 
-  use AOC.Solvers.Chain, [2019, 1, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "The Tyranny of the Rocket Equation",
+    url: "https://adventofcode.com/2019/day/1",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   def parse(input) do
     for s <- String.split(input, "\n") do String.to_integer(s) end

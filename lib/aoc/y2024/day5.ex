@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day5 do
-  @moduledoc title: "Print Queue"
-  @moduledoc url: "https://adventofcode.com/2024/day/5"
 
-  use AOC.Solvers.Double, [2024, 5, &parse/1, &solve/1]
+  use AOC.Solution,
+    title: "Print Queue",
+    url: "https://adventofcode.com/2024/day/5",
+    scheme: {:once, &parse/1, &solve/1}
 
   def parse(input) do
     [order, updates] = String.split(input, "\n\n")

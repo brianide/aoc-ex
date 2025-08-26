@@ -1,8 +1,9 @@
 defmodule AOC.Y2024.Day24 do
-  @moduledoc title: "Crossed Wires"
-  @moduledoc url: "https://adventofcode.com/2024/day/24"
 
-  use AOC.Solvers.Chain, [2024, 24, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "Crossed Wires",
+    url: "https://adventofcode.com/2024/day/24",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   def parse(input) do
     [inits, gates] = String.split(input, "\n\n")

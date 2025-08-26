@@ -1,8 +1,9 @@
 defmodule AOC.Y2015.Day3 do
-  @moduledoc title: "Perfectly Spherical Houses in a Vacuum"
-  @moduledoc url: "https://adventofcode.com/2015/day/3"
 
-  use AOC.Solvers.Chain, [2015, 3, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "Perfectly Spherical Houses in a Vacuum",
+    url: "https://adventofcode.com/2015/day/3",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   def parse(input) do
     String.to_charlist(input)

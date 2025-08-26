@@ -1,8 +1,9 @@
 defmodule AOC.Y2015.Day6 do
-  @moduledoc title: "Probably a Fire Hazard"
-  @moduledoc url: "https://adventofcode.com/2015/day/6"
 
-  use AOC.Solvers.Chain, [2015, 6, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "Probably a Fire Hazard",
+    url: "https://adventofcode.com/2015/day/6",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1}
 
   import AOC.Util.Guards
 

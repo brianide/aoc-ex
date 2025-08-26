@@ -1,8 +1,9 @@
 defmodule AOC.Y2015.Day4 do
-  @moduledoc title: "The Ideal Stocking Stuffer"
-  @moduledoc url: "https://adventofcode.com/2015/day/4"
 
-  use AOC.Solvers.Double, [2015, 4, &parse/1, &solve/1]
+  use AOC.Solution,
+    title: "The Ideal Stocking Stuffer",
+    url: "https://adventofcode.com/2015/day/4",
+    scheme: {:once, &parse/1, &solve/1}
 
   def parse(input), do: input
 
