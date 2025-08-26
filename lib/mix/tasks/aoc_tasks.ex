@@ -9,8 +9,8 @@ defmodule Mix.Tasks.Aoc.Solve do
         aliases: [y: :year, d: :day, r: :root, p: :part, b: :bench]
       )
 
-    String.to_existing_atom("Elixir.AOC.Y#{opts[:year]}.Day#{opts[:day]}")
-    |> Code.ensure_loaded!()
+    AOC.Solution.solutions()
+    |> get_in([opts[:year], opts[:day]])
     |> case do mod ->
       case opts[:bench] do
         nil ->
@@ -27,15 +27,6 @@ defmodule Mix.Tasks.Aoc.Solve do
             IO.puts("#{res}\n\n#{label} #{time / count / 1000}ms")
           end
       end
-    end
-  end
-end
-
-defmodule Mix.Tasks.Aoc.Doc do
-  def run(args) do
-    {:ok, mods} = :application.get_key(:aoc_ex, :modules)
-    for mod <- mods do
-      Module.get_attribute(mod, :aoc) |> IO.inspect()
     end
   end
 end

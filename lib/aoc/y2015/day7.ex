@@ -1,11 +1,11 @@
 defmodule AOC.Y2015.Day7 do
 
-  use AOC.Solution, date: {2015, 7}, scheme: [:and_then, &parse/1, &silver/1, &gold/2]
-
-  @aoc title: "Some Assembly Required"
-  @aoc url: "https://adventofcode.com/2015/day/7"
-  @aoc complete: true
-  @aoc favorite: true
+  use AOC.Solution,
+    title: "Some Assembly Required",
+    url: "https://adventofcode.com/2015/day/7",
+    scheme: {:chain, &parse/1, &silver/1, &gold/2},
+    complete: true,
+    favorite: true
 
   use AOC.Solvers.AndThen, [2015, 7, &parse/1, &silver/1, &gold/2]
   alias Bitwise, as: Bit
