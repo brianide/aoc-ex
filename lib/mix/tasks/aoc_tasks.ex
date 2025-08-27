@@ -40,17 +40,37 @@ end
 defmodule Mix.Tasks.Aoc.List do
   use Mix.Task
 
+  def rotate([h | rest]), do: rest ++ [h]
+
+  def year_colors([%{date: {year, _}} | _] = list, colors), do: year_colors(list, colors, year, [])
+
+  def year_colors([], _colors, _prev, done), do: Enum.reverse(done)
+
+  def year_colors([h | rest], [a, b | _] = colors, prev, done) do
+    {year, _} = h.date
+    cond do
+      year == prev ->
+        year_colors(rest, colors, prev, [put_in(h[:color], a) | done])
+
+      :else ->
+        year_colors(rest, rotate(colors), year, [put_in(h[:color], b) | done])
+    end
+  end
+
+  @colors [IO.ANSI.blue(), IO.ANSI.light_blue()]
+
   @shortdoc "List available Advent of Code solution statuses"
   def run([]) do
     Stream.flat_map(AOC.Solution.solutions(), fn {_year, days} -> for {_day, mod} <- days, do: mod end)
     |> Stream.map(&apply(&1, :__aoc_meta__, []))
     |> Enum.sort_by(&Access.get(&1, :date))
+    |> year_colors(@colors)
     |> Enum.each(fn meta ->
       {year, day} = meta.date
       check = meta.complete && "[x] " || "[ ] "
       date = "#{year} |" <> String.pad_leading("#{day} | ", 6)
       comp_color = meta.complete && IO.ANSI.green() || IO.ANSI.red()
-      line_color = meta.favorite && IO.ANSI.yellow() || IO.ANSI.default_color()
+      line_color = meta.favorite && IO.ANSI.yellow() || meta.color
       IO.puts(comp_color <> check <> line_color <> date <> meta.title <> IO.ANSI.default_color())
     end)
   end

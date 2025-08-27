@@ -4,7 +4,7 @@ defmodule AOC.Y2015.Day10 do
     title: "Elves Look, Elves Say",
     url: "https://adventofcode.com/2015/day/10",
     scheme: {:shared, &parse/1, &loop(&1, 40), &loop(&1, 50)},
-    complete: false
+    complete: true
 
   def parse(input), do: String.split(input, "", trim: true)
 
