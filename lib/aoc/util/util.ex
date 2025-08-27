@@ -8,6 +8,13 @@ defmodule AOC.Util do
   def parse_parts(s) when s in ["g", "gold"], do: :gold
   def parse_parts(s) when s in ["b", "both"], do: :both
 
+  def ensure_dir(path) do
+    case File.mkdir_p(path) do
+      {:error, :eexist} -> :ok
+      res -> res
+    end
+  end
+
   @doc """
   Parses a rectangular map from `str`, producing a map associating characters/graphemes to lists of
   coordinates at which they occur. Optionally returns the dimensions of the map.

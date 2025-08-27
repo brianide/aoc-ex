@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Aoc.Solve do
   use Mix.Task
 
+  @shortdoc "Run an Advent of Code solution"
   def run(args) do
     {opts, _} =
       OptionParser.parse!(
@@ -39,6 +40,7 @@ end
 defmodule Mix.Tasks.Aoc.List do
   use Mix.Task
 
+  @shortdoc "List available Advent of Code solution statuses"
   def run([]) do
     Stream.flat_map(AOC.Solution.solutions(), fn {_year, days} -> for {_day, mod} <- days, do: mod end)
     |> Stream.map(&apply(&1, :__aoc_meta__, []))
