@@ -55,3 +55,12 @@ defmodule Mix.Tasks.Aoc.List do
     end)
   end
 end
+
+defmodule Mix.Tasks.Aoc.Edit do
+  use Mix.Task
+
+  @shortdoc "Edit the file for the selected day"
+  def run([year, day]) do
+    System.cmd("code", ["lib/aoc/y#{year}/day#{day}.ex", "input/real/#{year}-day#{String.pad_leading(day, 2, "0")}.txt"])
+  end
+end

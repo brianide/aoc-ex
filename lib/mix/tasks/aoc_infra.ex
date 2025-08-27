@@ -52,8 +52,6 @@ defmodule Mix.Tasks.Aoc.Scaff do
         Mix.Shell.IO.info("File already exists: #{infile}")
       end
 
-      System.cmd("code", [exfile])
-      System.cmd("code", [infile])
     end
   end
 end
