@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day20 do
   use AOC.Solution,
     title: "Race Condition",
     url: "https://adventofcode.com/2024/day/20",
-    scheme: {:once, &parse/1, &solve/1}
+    scheme: {:once, &parse/1, &solve/1},
+    complete: true
 
   def parse(input) do
     case AOC.Util.parse_map(input, dims: false, ignore: [?#]) do

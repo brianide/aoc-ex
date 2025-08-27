@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day17 do
   use AOC.Solution,
     title: "Chronospatial Computer",
     url: "https://adventofcode.com/2024/day/17",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1}
+    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    complete: true
 
   alias Bitwise, as: Bit
 

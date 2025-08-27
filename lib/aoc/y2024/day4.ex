@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day4 do
   use AOC.Solution,
     title: "Ceres Search",
     url: "https://adventofcode.com/2024/day/4",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1}
+    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    complete: true
 
   def parse(input) do
     String.graphemes(input)

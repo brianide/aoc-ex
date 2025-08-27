@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day13 do
   use AOC.Solution,
     title: "Claw Contraption",
     url: "https://adventofcode.com/2024/day/13",
-    scheme: {:shared, &parse/1, &solve/1, &solve(&1, 10 ** 13)}
+    scheme: {:shared, &parse/1, &solve/1, &solve(&1, 10 ** 13)},
+    complete: true
 
   def parse(input) do
     Regex.scan(~r/Button A: X\+(\d+), Y\+(\d+)\nButton B: X\+(\d+), Y\+(\d+)\nPrize: X=(\d+), Y=(\d+)/, input)

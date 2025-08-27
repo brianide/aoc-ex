@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day2 do
   use AOC.Solution,
     title: "Red-Nosed Reports",
     url: "https://adventofcode.com/2024/day/2",
-    scheme: {:once, &parse/1, &solve/1}
+    scheme: {:once, &parse/1, &solve/1},
+    complete: true
 
   def parse(input) do
     String.split(input, "\n")

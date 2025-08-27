@@ -36,7 +36,7 @@ async function getInput(year, day) {
 }
 
 if (mode === "input") {
-    for (const day of days.split(",").map(n => +n)) {
+    for (const day of days.split(",").map(n => n)) {
         // Get problem input
         await getInput(year, day);
         await wait(1500);

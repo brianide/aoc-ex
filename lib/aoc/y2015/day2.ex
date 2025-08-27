@@ -3,7 +3,8 @@ defmodule AOC.Y2015.Day2 do
   use AOC.Solution,
     title: "I Was Told There Would Be No Math",
     url: "https://adventofcode.com/2015/day/2",
-    scheme: {:once, &parse/1, &solve/1}
+    scheme: {:once, &parse/1, &solve/1},
+    complete: true
 
   def parse(input) do
     Regex.scan(~r/\d+/, input)

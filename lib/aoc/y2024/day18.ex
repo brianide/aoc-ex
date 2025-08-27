@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day18 do
   use AOC.Solution,
     title: "RAM Run",
     url: "https://adventofcode.com/2024/day/18",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1}
+    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    complete: true
 
   alias AOC.Util
 

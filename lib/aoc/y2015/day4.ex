@@ -3,7 +3,8 @@ defmodule AOC.Y2015.Day4 do
   use AOC.Solution,
     title: "The Ideal Stocking Stuffer",
     url: "https://adventofcode.com/2015/day/4",
-    scheme: {:once, &parse/1, &solve/1}
+    scheme: {:once, &parse/1, &solve/1},
+    complete: true
 
   def parse(input), do: input
 

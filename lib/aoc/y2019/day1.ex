@@ -3,7 +3,8 @@ defmodule AOC.Y2019.Day1 do
   use AOC.Solution,
     title: "The Tyranny of the Rocket Equation",
     url: "https://adventofcode.com/2019/day/1",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1}
+    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    complete: true
 
   def parse(input) do
     for s <- String.split(input, "\n") do String.to_integer(s) end

@@ -1,8 +1,10 @@
 defmodule AOC.Y!YEAR!.Day!DAY! do
-  @moduledoc title: "!NAME!"
-  @moduledoc url: "https://adventofcode.com/!YEAR!/day/!DAY!"
 
-  use AOC.Solvers.Chain, [!YEAR!, !DAY!, &parse/1, &silver/1, &gold/1]
+  use AOC.Solution,
+    title: "!NAME!",
+    url: "https://adventofcode.com/!YEAR!/day/!DAY!",
+    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    complete: false
 
   def parse(input) do
     input

@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day11 do
   use AOC.Solution,
     title: "Plutonian Pebbles",
     url: "https://adventofcode.com/2024/day/11",
-    scheme: {:chain, &parse/1, &silver/1, &gold/2}
+    scheme: {:chain, &parse/1, &silver/1, &gold/2},
+    complete: true
 
   def parse(input) do
     String.split(input, " ", trim: true)

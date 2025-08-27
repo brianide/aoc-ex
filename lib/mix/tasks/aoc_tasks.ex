@@ -29,9 +29,27 @@ defmodule Mix.Tasks.Aoc.Solve do
           end
           |> case do {time, res} ->
             label = if count > 1, do: "Average runtime:", else: "Ran in"
-            IO.puts("#{res}\n\n#{label} #{time / count / 1000}ms")
+            IO.puts("#{res}\n\n#{IO.ANSI.light_green()}#{label} #{time / count / 1000}ms#{IO.ANSI.default_color()}")
           end
       end
     end
+  end
+end
+
+defmodule Mix.Tasks.Aoc.List do
+  use Mix.Task
+
+  def run([]) do
+    Stream.flat_map(AOC.Solution.solutions(), fn {_year, days} -> for {_day, mod} <- days, do: mod end)
+    |> Stream.map(&apply(&1, :__aoc_meta__, []))
+    |> Enum.sort_by(&Access.get(&1, :date))
+    |> Enum.each(fn meta ->
+      {year, day} = meta.date
+      check = meta.complete && "[x] " || "[ ] "
+      date = "#{year} |" <> String.pad_leading("#{day} | ", 6)
+      comp_color = meta.complete && IO.ANSI.green() || IO.ANSI.red()
+      line_color = meta.favorite && IO.ANSI.yellow() || IO.ANSI.default_color()
+      IO.puts(comp_color <> check <> line_color <> date <> meta.title <> IO.ANSI.default_color())
+    end)
   end
 end

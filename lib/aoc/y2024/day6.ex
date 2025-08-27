@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day6 do
   use AOC.Solution,
     title: "Guard Gallivant",
     url: "https://adventofcode.com/2024/day/6",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1}
+    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    complete: true
 
   def parse(input) do
     group = fn obs, i -> obs |> Enum.group_by(&elem(&1, i), &elem(&1, 1 - i)) |> Map.new(fn {k, v} -> {k, Enum.sort(v, :desc)} end) end

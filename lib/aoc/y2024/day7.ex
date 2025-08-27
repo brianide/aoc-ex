@@ -3,7 +3,8 @@ defmodule AOC.Y2024.Day7 do
   use AOC.Solution,
     title: "Bridge Repair",
     url: "https://adventofcode.com/2024/day/7",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1}
+    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    complete: true
 
   defp parse_line(line) do
     Regex.scan(~r/\d+/, line)

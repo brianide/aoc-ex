@@ -3,7 +3,8 @@ defmodule AOC.Y2015.Day6 do
   use AOC.Solution,
     title: "Probably a Fire Hazard",
     url: "https://adventofcode.com/2015/day/6",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1}
+    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    complete: true
 
   import AOC.Util.Guards
 
