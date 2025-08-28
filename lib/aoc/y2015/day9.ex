@@ -5,10 +5,11 @@ defmodule AOC.Y2015.Day9 do
     scheme: {:once, &parse/1, &solve/1},
     complete: true
 
-  @regex ~r/(\w+) to (\w+) = (\d+)/
-  @types [:str, :str, :int]
+  require AOC.Read
+
+  @format "~s to ~s = ~d"
   def parse(input) do
-    for [from, to, dist] <- AOC.Util.Regex.scan_typed(@regex, @types, input),
+    for [from, to, dist] <- AOC.Read.fscan(@format, input),
         reduce: %{} do acc ->
           acc
           |> put_in([Access.key(from, %{}), to], dist)

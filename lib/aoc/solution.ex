@@ -18,7 +18,7 @@ defmodule AOC.Solution do
 
       def __aoc_run__(opts) do
         path = Path.join([opts.input_root, unquote(file)])
-        AOC.Solution.run_solution(unquote(opts[:scheme]), opts.part, path)
+        apply(unquote(__MODULE__), :run_solution, [unquote(opts[:scheme]), opts.part, path])
       end
     end
   end
