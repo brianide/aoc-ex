@@ -3,7 +3,6 @@ defmodule Mix.Tasks.Aoc.Scaff do
 
   def template(ops), do: """
     defmodule AOC.Y#{ops.year}.Day#{ops.day} do
-
       use AOC.Solution,
         title: "#{ops.title}",
         url: "https://adventofcode.com/#{ops.year}/day/#{ops.day}",
