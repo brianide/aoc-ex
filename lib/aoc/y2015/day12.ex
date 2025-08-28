@@ -3,7 +3,7 @@ defmodule AOC.Y2015.Day12 do
     title: "JSAbacusFramework.io",
     url: "https://adventofcode.com/2015/day/12",
     scheme: {:separate, &silver/1, &gold/1},
-    complete: false
+    complete: true
 
   def silver(input) do
     for [s] <- Regex.scan(~r/-?\d+/, input), reduce: 0, do: (acc -> acc + String.to_integer(s))

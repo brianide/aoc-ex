@@ -1,22 +1,32 @@
 defmodule AOC.Y2015.Day9 do
-
   use AOC.Solution,
     title: "All in a Single Night",
     url: "https://adventofcode.com/2015/day/9",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1},
-    complete: false
+    scheme: {:once, &parse/1, &solve/1},
+    complete: true
 
+  @regex ~r/(\w+) to (\w+) = (\d+)/
+  @types [:str, :str, :int]
   def parse(input) do
-    input
+    for [from, to, dist] <- AOC.Util.Regex.scan_typed(@regex, @types, input),
+        reduce: %{} do acc ->
+          acc
+          |> put_in([Access.key(from, %{}), to], dist)
+          |> put_in([Access.key(to, %{}), from], dist)
+        end
   end
 
-  def silver(input) do
-    input
-    |> inspect(charlists: :as_lists)
-  end
-
-  def gold(_input) do
-    "Not implemented"
+  def solve(input) do
+    Map.keys(input)
+    |> AOC.Util.permutations()
+    |> Stream.map(fn list ->
+      Enum.reduce(list, nil, fn
+        dest, nil -> {dest, 0}
+        dest, {prev, total} -> {dest, total + input[prev][dest]}
+      end)
+    end)
+    |> Stream.map(&elem(&1, 1))
+    |> Enum.min_max()
   end
 
 end

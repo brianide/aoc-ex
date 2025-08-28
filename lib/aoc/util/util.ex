@@ -15,6 +15,15 @@ defmodule AOC.Util do
     end
   end
 
+  def permutations([]), do: [[]]
+
+  def permutations(list) do
+    for e <- list,
+        tail <- permutations(list -- [e]) do
+          [e | tail]
+        end
+  end
+
   @doc """
   Parses a rectangular map from `str`, producing a map associating characters/graphemes to lists of
   coordinates at which they occur. Optionally returns the dimensions of the map.
