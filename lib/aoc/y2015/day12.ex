@@ -1,3 +1,19 @@
+defmodule AOC.Y2015.Day12 do
+  use AOC.Solution,
+    title: "JSAbacusFramework.io",
+    url: "https://adventofcode.com/2015/day/12",
+    scheme: {:separate, &silver/1, &gold/1},
+    complete: false
+
+  def silver(input) do
+    for [s] <- Regex.scan(~r/-?\d+/, input), reduce: 0, do: (acc -> acc + String.to_integer(s))
+  end
+
+  def gold(input) do
+    AOC.Y2015.Day12.JSON.parse(input)
+  end
+end
+
 defmodule AOC.Y2015.Day12.JSON do
   @regex ~r<[][}{]|"[^"]+"|-?\d+>
   def tokenize(str), do: for [s] <- Regex.scan(@regex, str), do: s
@@ -12,41 +28,29 @@ defmodule AOC.Y2015.Day12.JSON do
     end
   end
 
-  def parse_object(tokens, values \\ [])
-  def parse_object(["}" | rest], values), do: {{:object, values}, rest}
+  def parse_object(tokens, total \\ 0, red \\ false)
+  def parse_object(["}" | rest], total, false), do: {total, rest}
+  def parse_object(["}" | rest], _total, true), do: {0, rest}
 
-  def parse_object(tokens, values) do
+  def parse_object(tokens, total, red) do
     {_key, tokens} = parse_value(tokens)
-    {val, tokens} = parse_value(tokens)
-    parse_object(tokens, [val | values])
+    case parse_value(tokens) do
+      {"red", tokens} -> parse_object(tokens, total, true)
+      {n, tokens} when is_number(n) -> parse_object(tokens, total + n, red)
+      {_, tokens} -> parse_object(tokens, total, red)
+    end
   end
 
-  def parse_array(tokens, values \\ [])
-  def parse_array(["]" | rest], values), do: {{:array, values}, rest}
+  def parse_array(tokens, total \\ 0)
+  def parse_array(["]" | rest], total), do: {total, rest}
 
-  def parse_array(tokens, values) do
-    {val, tokens} = parse_value(tokens)
-    parse_array(tokens, [val | values])
+  def parse_array(tokens, total) do
+    case parse_value(tokens) do
+      {n, tokens} when is_number(n) -> parse_array(tokens, total + n)
+      {_, tokens} -> parse_array(tokens, total)
+    end
   end
 
-  def parse(str), do: tokenize(str) |> parse_value()
+  def parse(str), do: tokenize(str) |> parse_value() |> then(&elem(&1, 0))
 
-end
-
-defmodule AOC.Y2015.Day12 do
-  use AOC.Solution,
-    title: "JSAbacusFramework.io",
-    url: "https://adventofcode.com/2015/day/12",
-    scheme: {:separate, &silver/1, &gold/1},
-    complete: false
-
-  def silver(input) do
-    for [s] <- Regex.scan(~r/-?\d+/, input), reduce: 0, do: (acc -> acc + String.to_integer(s))
-  end
-
-  def gold(input) do
-
-  end
-
-  def test(s), do: s |> silver() |> IO.puts()
 end
