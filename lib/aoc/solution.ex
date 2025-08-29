@@ -116,11 +116,15 @@ defmodule AOC.Solution do
   end
 
   def run_solution({:intcode, silv_fn, gold_fn}, part, path) do
+    raw = File.read!(path) |> String.trim()
+
     :timer.tc(fn ->
+      prog = (for s <- String.splitter(raw, ","), do: String.to_integer(s))
+
       case part do
-        :silver -> silv_fn.(path)
-        :gold -> gold_fn.(path)
-        :both -> "#{silv_fn.(path)}\n#{gold_fn.(path)}"
+        :silver -> silv_fn.(prog)
+        :gold -> gold_fn.(prog)
+        :both -> "#{silv_fn.(prog)}\n#{gold_fn.(prog)}"
       end
     end)
   end

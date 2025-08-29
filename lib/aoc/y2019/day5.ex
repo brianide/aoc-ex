@@ -5,21 +5,13 @@ defmodule AOC.Y2019.Day5 do
     scheme: {:intcode, &solve(&1, 1), &solve(&1, 5)},
     complete: false
 
-  def listen(port) do
-    receive do
-      {^port, {:data, {:eol, "0"}}} ->
-        listen(port)
+  alias AOC.Intcode, as: VM
 
-      {^port, {:data, {:eol, n}}} ->
-        Port.close(port)
-        n
-    end
-  end
-
-  def solve(file, n) do
-    port = AOC.Intcode.start(file)
-    Port.command(port, "#{n}\n")
-    listen(port)
+  def solve(prog, n) do
+    vm = VM.start()
+    VM.send_program(vm, prog)
+    VM.send(vm, n)
+    VM.await(vm, discard: &(&1 == 0))
   end
 
 end
