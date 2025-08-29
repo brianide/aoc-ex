@@ -1,0 +1,3 @@
+[submodule "dintcode"]
+	path = dintcode
+	url = https://github.com/brianide/dintcode

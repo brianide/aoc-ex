@@ -25,8 +25,29 @@ defmodule Mix.Tasks.Aoc.Scaff do
     end
     """
 
+  def template_intcode(ops), do: """
+    defmodule AOC.Y#{ops.year}.Day#{ops.day} do
+      use AOC.Solution,
+        title: "#{ops.title}",
+        url: "https://adventofcode.com/#{ops.year}/day/#{ops.day}",
+        scheme: {:intcode, &silver/1, &gold/1},
+        complete: false
+
+      def silver(_file) do
+        "Not implemented"
+      end
+
+      def gold(_file) do
+        "Not implemented"
+      end
+
+    end
+    """
+
   @shortdoc "Scaffold an AoC solution"
-  def run([year, day]) do
+  def run(args) do
+    [opts, [year, day], _] = OptionParser.parse!(args, switches: [intcode: :boolean], aliases: [ic: :intcode])
+
     cookie = AOC.Site.cookie()
     path = "lib/aoc/y#{year}"
     exfile = "#{path}/day#{day}.ex"
@@ -37,7 +58,8 @@ defmodule Mix.Tasks.Aoc.Scaff do
          {:ok, input} <- AOC.Site.get_day_input(cookie, year, day) do
 
       if not File.exists?(exfile) do
-        text = template(%{year: year, day: day, title: info.title})
+        params = %{year: year, day: day, title: info.title}
+        text = if opts[:intcode], do: template_intcode(params), else: template(params)
         File.write!(exfile, text)
         Mix.Shell.IO.info("Wrote solution file: #{exfile}")
       else

@@ -115,4 +115,14 @@ defmodule AOC.Solution do
     end)
   end
 
+  def run_solution({:intcode, silv_fn, gold_fn}, part, path) do
+    :timer.tc(fn ->
+      case part do
+        :silver -> silv_fn.(path)
+        :gold -> gold_fn.(path)
+        :both -> "#{silv_fn.(path)}\n#{gold_fn.(path)}"
+      end
+    end)
+  end
+
 end
