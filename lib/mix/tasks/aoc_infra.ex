@@ -46,7 +46,7 @@ defmodule Mix.Tasks.Aoc.Scaff do
 
   @shortdoc "Scaffold an AoC solution"
   def run(args) do
-    [opts, [year, day], _] = OptionParser.parse!(args, switches: [intcode: :boolean], aliases: [ic: :intcode])
+    {opts, [year, day]} = OptionParser.parse!(args, switches: [intcode: :boolean, edit: :boolean], aliases: [ic: :intcode])
 
     cookie = AOC.Site.cookie()
     path = "lib/aoc/y#{year}"
@@ -72,6 +72,8 @@ defmodule Mix.Tasks.Aoc.Scaff do
       else
         Mix.Shell.IO.info("File already exists: #{infile}")
       end
+
+      if (opts[:edit]), do: Mix.Tasks.Aoc.Edit.run([year, day])
 
     end
   end

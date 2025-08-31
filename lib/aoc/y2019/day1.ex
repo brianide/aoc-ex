@@ -14,10 +14,10 @@ defmodule AOC.Y2019.Day1 do
     for n <- input, reduce: 0 do acc -> acc + div(n, 3) - 2 end
   end
 
-  def calc_fuel(mass) do
+  def calc_fuel(mass, total \\ 0) do
     case div(mass, 3) - 2 do
-      n when n <= 0 -> 0
-      n -> n + calc_fuel(n)
+      n when n <= 0 -> total
+      n -> calc_fuel(n, total + n)
     end
   end
 

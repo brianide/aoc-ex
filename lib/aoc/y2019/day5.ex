@@ -7,11 +7,21 @@ defmodule AOC.Y2019.Day5 do
 
   alias AOC.Intcode, as: VM
 
+  def await(port) do
+    receive do
+      {^port, d} ->
+        IO.inspect(d)
+        await(port)
+    end
+  end
+
   def solve(prog, n) do
-    vm = VM.start()
-    VM.send_program(vm, prog)
-    VM.send(vm, n)
-    VM.await(vm, discard: &(&1 == 0))
+    {:ok, vm} = VM.create()
+    VM.run_program(vm, prog)
+    VM.send_input(vm, n);
+
+    Stream.repeatedly(fn -> VM.get_output(vm) end)
+    |> Enum.find(&(&1 != 0))
   end
 
 end

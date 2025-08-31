@@ -24,6 +24,10 @@ defmodule AOC.Util do
         end
   end
 
+  def prepend_if(list, check, val) do
+    if check, do: [val | list], else: list
+  end
+
   @doc """
   Parses a rectangular map from `str`, producing a map associating characters/graphemes to lists of
   coordinates at which they occur. Optionally returns the dimensions of the map.
