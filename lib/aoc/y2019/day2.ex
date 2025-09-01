@@ -2,20 +2,42 @@ defmodule AOC.Y2019.Day2 do
   use AOC.Solution,
     title: "1202 Program Alarm",
     url: "https://adventofcode.com/2019/day/2",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    scheme: {:intcode, &silver/1, &gold/1},
     complete: false
 
-  def parse(input) do
-    input
+  alias AOC.Intcode, as: VM
+
+  def patch_program(prog, noun, verb) do
+    for {n, i} <- Stream.with_index(prog) do
+      case i do
+        1 -> noun
+        2 -> verb
+        _ -> n
+      end
+    end
   end
 
-  def silver(input) do
-    input
-    |> inspect(charlists: :as_lists)
+  def silver(prog) do
+    {:ok, vm} = VM.create()
+    VM.run_program(vm, patch_program(prog, 12, 2))
+    res = VM.peek(vm, 0)
+    VM.stop(vm)
+    res
   end
 
-  def gold(_input) do
-    "Not implemented"
+  def gold(prog) do
+    {:ok, vm} = VM.create()
+
+    for(noun <- 0..99, verb <- 0..99, do: {noun, verb})
+    |> Enum.find(fn {noun, verb} ->
+      VM.run_program(vm, patch_program(prog, noun, verb))
+      VM.peek(vm, 0) == 19690720
+    end)
+    |> case do
+      {noun, verb} ->
+        VM.stop(vm)
+        100 * noun + verb
+    end
   end
 
 end

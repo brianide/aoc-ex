@@ -34,6 +34,7 @@ end
 
 defmodule AOC.Intcode do
 
+  @code_load 0x08
   @code_inpt 0x10
   @code_peek 0x12
   @code_poke 0x13
@@ -59,7 +60,7 @@ defmodule AOC.Intcode do
   def run_program(pid, prog) do
     prog = to_bitstring(prog)
     length = <<(byte_size(prog) |> div(8))::signed-little-64>>
-    Port.command(pid, length <> prog)
+    Port.command(pid, <<@code_load::unsigned-little-8>> <> length <> prog)
   end
 
   def stop(pid), do: Port.close(pid)
