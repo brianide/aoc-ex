@@ -3,7 +3,7 @@ defmodule AOC.Y2019.Day2 do
     title: "1202 Program Alarm",
     url: "https://adventofcode.com/2019/day/2",
     scheme: {:intcode, &silver/1, &gold/1},
-    complete: false
+    complete: true
 
   alias AOC.Intcode, as: VM
 

@@ -60,9 +60,19 @@ defmodule Mix.Tasks.Aoc.List do
   @colors [IO.ANSI.blue(), IO.ANSI.light_blue()]
 
   @shortdoc "List available Advent of Code solution statuses"
-  def run([]) do
+  def run(opts) do
+    {opts, _} = OptionParser.parse!(opts, switches: [year: :integer], aliases: [y: :year])
+
     Stream.flat_map(AOC.Solution.solutions(), fn {_year, days} -> for {_day, mod} <- days, do: mod end)
     |> Stream.map(&apply(&1, :__aoc_meta__, []))
+    |> Stream.filter(fn meta ->
+      if opts[:year] do
+        {year, _} = meta.date
+        year == opts[:year]
+      else
+        true
+      end
+    end)
     |> Enum.sort_by(&Access.get(&1, :date))
     |> year_colors(@colors)
     |> Enum.each(fn meta ->

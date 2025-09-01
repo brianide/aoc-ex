@@ -2,26 +2,23 @@ defmodule AOC.Y2019.Day3 do
   use AOC.Solution,
     title: "Crossed Wires",
     url: "https://adventofcode.com/2019/day/3",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1},
-    complete: false
+    scheme: {:chain, &parse/1, &silver/1, &gold/2},
+    complete: true
+
+  import AOC.Util.Point
 
   def dir("U"), do: { 1,  0}
   def dir("D"), do: {-1,  0}
   def dir("R"), do: { 0,  1}
   def dir("L"), do: { 0, -1}
 
-  def mul({r, c}, d), do: {r * d, c * d}
-  def add({r, c}, {dr, dc}), do: {r + dr, c + dc}
-
   def points_between({ra, ca}, {rb, cb}) do
     if ra == rb do
-      st = min(ca, cb)
-      ed = max(ca, cb)
-      for s <- st..ed, do: {ra, s}
+      step = if ca < cb, do: 1, else: -1
+      for s <- (ca + step)..cb//step, do: {ra, s}
     else
-      st = min(ra, rb)
-      ed = max(ra, rb)
-      for s <- st..ed, do: {s, ca}
+      step = if ra < rb, do: 1, else: -1
+      for s <- (ra + step)..rb//step, do: {s, ca}
     end
   end
 
@@ -36,22 +33,24 @@ defmodule AOC.Y2019.Day3 do
           p = dir(dir) |> mul(dist) |> add(p)
           [p | acc]
         end
+    |> Enum.reverse()
     |> plot_points()
-    |> Stream.flat_map(fn n -> n end)
-    |> MapSet.new()
+    |> Enum.flat_map(fn n -> n end)
   end
 
   def parse(input) do
     for line <- String.split(input, "\n"), do: parse_line(line)
   end
 
-  def silver([a, b]) do
-    for({a, b} <- MapSet.intersection(a, b), not (a == 0 and b == 0), do: abs(a) + abs(b))
-    |> Enum.min()
+  def silver(input) do
+    inters = Enum.map(input, &MapSet.new/1) |> case do [a, b] -> MapSet.intersection(a, b) end
+    min = Stream.map(inters, fn {a, b} -> abs(a) + abs(b) end) |> Enum.min()
+    {min, inters}
   end
 
-  def gold(_input) do
-    "Not implemented"
+  def gold([a, b], inters) do
+    Enum.map(inters, fn p -> Enum.find_index(a, &(&1 == p)) + Enum.find_index(b, &(&1 == p)) + 2 end)
+    |> Enum.min()
   end
 
 end

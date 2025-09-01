@@ -45,7 +45,7 @@ defmodule AOC.Intcode do
     decoder =
       spawn_link(fn ->
         dint_path = System.get_env("DINTCODE_PATH") || Path.join(File.cwd!(), "dintcode/dintcode")
-        args = ["--bin"] |> AOC.Util.prepend_if(opts[:debug], "--log")
+        args = ["--bin"] |> AOC.Util.prepend_if(:debug in opts, "--log")
         opts = [:binary, :exit_status, :stream, args: args]
         port = Port.open({:spawn_executable, dint_path}, opts)
         send(current, {self(), port})
