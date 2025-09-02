@@ -1,5 +1,13 @@
+defmodule AOC.Intcode.Helpers do
+  defmacro code, do: (quote do: unsigned-little-8)
+  defmacro value, do: (quote do: signed-little-64)
+end
+
 defmodule AOC.Intcode.Decoder do
 
+  import AOC.Intcode.Helpers
+
+  @resp_halt 0x09
   @resp_outp 0x11
   @resp_peek 0x12
 
@@ -18,12 +26,16 @@ defmodule AOC.Intcode.Decoder do
     end
   end
 
-  def parse_message(<<@resp_outp::unsigned-little-8, v::signed-little-64, rest::binary>>) do
+  def parse_message(<<@resp_outp::code(), v::value(), rest::binary>>) do
     {:ok, {:output, v}, rest}
   end
 
-  def parse_message(<<@resp_peek::unsigned-little-8, addr::signed-little-64, v::signed-little-64, rest::binary>>) do
+  def parse_message(<<@resp_peek::code(), addr::value(), v::value(), rest::binary>>) do
     {:ok, {:peek, addr, v}, rest}
+  end
+
+  def parse_message(<<@resp_halt::code(), rest::binary>>) do
+    {:ok, :halt, rest}
   end
 
   def parse_message(rest) do
@@ -33,6 +45,8 @@ defmodule AOC.Intcode.Decoder do
 end
 
 defmodule AOC.Intcode do
+
+  import AOC.Intcode.Helpers
 
   @code_load 0x08
   @code_inpt 0x10
@@ -57,28 +71,54 @@ defmodule AOC.Intcode do
     end
   end
 
+  defp drop_stale_messages(pid) do
+    receive do
+      {^pid, _} ->
+        drop_stale_messages(pid)
+    after 0 ->
+      nil
+    end
+  end
+
   def run_program(pid, prog) do
+    drop_stale_messages(pid)
     prog = to_bitstring(prog)
     length = <<(byte_size(prog) |> div(8))::signed-little-64>>
-    Port.command(pid, <<@code_load::unsigned-little-8>> <> length <> prog)
+    Port.command(pid, <<@code_load::code()>> <> length <> prog)
   end
 
   def stop(pid), do: Port.close(pid)
 
-  def send_input(pid, val), do: send_control(pid, @code_inpt, [val])
+  def input(pid, vals) when is_list(vals) do
+    for v <- vals,
+        into: <<>> do
+          <<@code_inpt::code(), v::value()>>
+        end
+    |> then(&Port.command(pid, &1))
+  end
 
-  def get_output(pid, count) do
+  def input(pid, val), do: send_control(pid, @code_inpt, [val])
+
+  def get_output!(pid, count) do
     for _ <- 1..count,
         into: [] do
           receive do
             {^pid, {:output, v}} -> v
+            # {^pid, :halt} -> throw("Unexpected halt")
           end
         end
   end
 
-  def get_output(pid) do
-    case get_output(pid, 1) do
+  def get_output!(pid) do
+    case get_output!(pid, 1) do
       [n] -> n
+    end
+  end
+
+  def get_output(pid) do
+    receive do
+      {^pid, {:output, v}} -> {:ok, v}
+      {^pid, :halt} -> :halt
     end
   end
 
@@ -94,12 +134,12 @@ defmodule AOC.Intcode do
   end
 
   defp send_control(port, code, args) do
-    Port.command(port, <<code::unsigned-little-8>> <> to_bitstring(args))
+    Port.command(port, <<code::code()>> <> to_bitstring(args))
   end
 
   defp to_bitstring(vals) do
     for s <- vals,
-        n = <<s::signed-little-64>>,
+        n = <<s::value()>>,
         reduce: [] do acc ->
           [n | acc]
         end

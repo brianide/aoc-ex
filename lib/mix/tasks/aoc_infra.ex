@@ -33,11 +33,13 @@ defmodule Mix.Tasks.Aoc.Scaff do
         scheme: {:intcode, &silver/1, &gold/1},
         complete: false
 
-      def silver(_file) do
+      alias AOC.Intcode, as: VM
+
+      def silver(prog) do
         "Not implemented"
       end
 
-      def gold(_file) do
+      def gold(_prog) do
         "Not implemented"
       end
 

@@ -20,9 +20,8 @@ defmodule AOC.Y2019.Day2 do
   def silver(prog) do
     {:ok, vm} = VM.create()
     VM.run_program(vm, patch_program(prog, 12, 2))
-    res = VM.peek(vm, 0)
-    VM.stop(vm)
-    res
+    VM.peek(vm, 0)
+    |> tap(fn _ -> VM.stop(vm) end)
   end
 
   def gold(prog) do
