@@ -23,8 +23,8 @@ defmodule AOC.Y2019.Day4 do
     |> Zip.from_list()
   end
 
-  def normalize({_, _, []} = pass), do: Zip.front(pass)
-  def normalize({n, _, [r | _]} = pass) when n > r, do: Zip.right(pass) |> Zip.replace(n) |> normalize()
+  def normalize({_, []} = pass), do: Zip.front(pass)
+  def normalize({_, [n, r | _]} = pass) when n > r, do: Zip.right(pass) |> Zip.replace(n) |> normalize()
   def normalize(pass), do: Zip.right(pass) |> normalize()
 
   def next_pass(p) do
@@ -36,14 +36,14 @@ defmodule AOC.Y2019.Day4 do
     |> Zip.reverse()
   end
 
-  def increment_pass({9, _, _} = pass), do: Zip.replace(pass, 0) |> Zip.right() |> increment_pass()
-  def increment_pass({n, _, _} = pass), do: Zip.replace(pass, n + 1)
+  def increment_pass({_, [9 | _]} = pass), do: Zip.replace(pass, 0) |> Zip.right() |> increment_pass()
+  def increment_pass({_, [n | _]} = pass), do: Zip.replace(pass, n + 1)
 
-  def propogate_pass({_, [], _} = pass), do: pass
-  def propogate_pass({n, _, _} = pass), do: Zip.left(pass) |> Zip.replace(n) |> propogate_pass()
+  def propogate_pass({[], _} = pass), do: pass
+  def propogate_pass({_, [n | _]} = pass), do: Zip.left(pass) |> Zip.replace(n) |> propogate_pass()
 
-  def has_double?({_, _, []}), do: false
-  def has_double?({foc, _, [r | _]}) when foc == r, do: true
+  def has_double?({_, []}), do: false
+  def has_double?({_, [foc, r | _]}) when foc == r, do: true
   def has_double?(pass), do: Zip.right(pass) |> has_double?()
 
   def has_exclusive_double?(pass) do
