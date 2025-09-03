@@ -18,14 +18,14 @@ defmodule AOC.Y2019.Day2 do
   end
 
   def silver(prog) do
-    {:ok, vm} = VM.create()
+    vm = VM.create!()
     VM.run_program(vm, patch_program(prog, 12, 2))
     VM.peek(vm, 0)
     |> tap(fn _ -> VM.stop(vm) end)
   end
 
   def gold(prog) do
-    {:ok, vm} = VM.create()
+    vm = VM.create!()
 
     for(noun <- 0..99, verb <- 0..99, do: {noun, verb})
     |> Enum.find(fn {noun, verb} ->
@@ -33,9 +33,7 @@ defmodule AOC.Y2019.Day2 do
       VM.peek(vm, 0) == 19690720
     end)
     |> case do
-      {noun, verb} ->
-        VM.stop(vm)
-        100 * noun + verb
+      {noun, verb} -> 100 * noun + verb
     end
   end
 

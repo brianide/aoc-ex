@@ -71,6 +71,12 @@ defmodule AOC.Intcode do
     end
   end
 
+  def create!(opts \\ []) do
+    case create(opts) do
+      {:ok, vm} -> vm
+    end
+  end
+
   defp drop_stale_messages(pid) do
     receive do
       {^pid, _} ->
@@ -104,7 +110,7 @@ defmodule AOC.Intcode do
         into: [] do
           receive do
             {^pid, {:output, v}} -> v
-            # {^pid, :halt} -> throw("Unexpected halt")
+            {^pid, :halt} -> throw("Unexpected halt")
           end
         end
   end

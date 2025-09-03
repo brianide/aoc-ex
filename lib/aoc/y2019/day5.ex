@@ -8,13 +8,12 @@ defmodule AOC.Y2019.Day5 do
   alias AOC.Intcode, as: VM
 
   def solve(prog, n) do
-    {:ok, vm} = VM.create()
+    vm = VM.create!()
     VM.run_program(vm, prog)
     VM.input(vm, n);
 
     Stream.repeatedly(fn -> VM.get_output!(vm) end)
     |> Enum.find(&(&1 != 0))
-    |> tap(fn _ -> VM.stop(vm) end)
   end
 
 end

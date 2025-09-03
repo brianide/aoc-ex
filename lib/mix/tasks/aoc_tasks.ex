@@ -25,7 +25,7 @@ defmodule Mix.Tasks.Aoc.Solve do
 
         count ->
           for _ <- 1..count, reduce: {0, nil} do {time, _res} ->
-            {t, r} = apply(mod, :__aoc_run__, run_opts)
+            {t, r} = Task.async(fn -> apply(mod, :__aoc_run__, run_opts) end) |> Task.await()
             {time + t, r}
           end
           |> case do {time, res} ->

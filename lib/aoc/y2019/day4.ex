@@ -23,7 +23,6 @@ defmodule AOC.Y2019.Day4 do
     |> Zip.from_list()
   end
 
-  @doc "Advances to the next "
   def normalize({_, _, []} = pass), do: Zip.front(pass)
   def normalize({n, _, [r | _]} = pass) when n > r, do: Zip.right(pass) |> Zip.replace(n) |> normalize()
   def normalize(pass), do: Zip.right(pass) |> normalize()

@@ -3,7 +3,7 @@ defmodule AOC.Y2019.Day7 do
     title: "Amplification Circuit",
     url: "https://adventofcode.com/2019/day/7",
     scheme: {:intcode, &silver/1, &gold/1},
-    complete: false
+    complete: true
 
   alias AOC.Intcode, as: VM
 
@@ -12,7 +12,7 @@ defmodule AOC.Y2019.Day7 do
   @nodes 5
 
   def silver(prog) do
-    {:ok, vm} = VM.create()
+    vm = VM.create!()
 
     Stream.map(@perms_a, fn perm ->
       for phase <- perm,
@@ -24,11 +24,10 @@ defmodule AOC.Y2019.Day7 do
       end
     end)
     |> Enum.max()
-    |> tap(fn _ -> VM.stop(vm) end)
   end
 
   def gold(prog) do
-    vms = for _ <- 1..5, {:ok, vm} = VM.create(), do: vm
+    vms = for _ <- 1..5, do: VM.create!()
 
     # Map each permutation to its score
     Stream.map(@perms_b, fn perm ->
@@ -55,6 +54,5 @@ defmodule AOC.Y2019.Day7 do
       |> Enum.at(-1)
     end)
     |> Enum.max()
-    |> tap(fn _ -> Enum.each(vms, &VM.stop/1) end)
   end
 end

@@ -1,5 +1,5 @@
-Mix.start()
-Mix.CLI.main()
+#Mix.start()
+#Mix.CLI.main()
 
 defmodule AOCHelpers do
   use Agent
@@ -14,10 +14,11 @@ defmodule AOCHelpers do
     |> then(&File.write!(@persfile, &1))
   end
 
-  def solve(day, part \\ "b") do
+  def solve(day, opts \\ []) do
     Agent.get(__MODULE__, &(&1))
     |> put_in([:day], day)
-    |> put_in([:part], part)
+    |> Enum.to_list()
+    |> then(&(&1 ++ opts))
     |> Enum.flat_map(fn {k, v} -> ["--#{Atom.to_string(k)}", "#{v}"] end)
     |> Mix.Tasks.Aoc.Solve.run()
   end
