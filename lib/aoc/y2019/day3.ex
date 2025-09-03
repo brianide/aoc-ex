@@ -35,7 +35,7 @@ defmodule AOC.Y2019.Day3 do
         end
     |> Enum.reverse()
     |> plot_points()
-    |> Enum.flat_map(fn n -> n end)
+    |> List.flatten()
   end
 
   def parse(input) do

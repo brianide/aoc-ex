@@ -28,13 +28,13 @@ defmodule AOC.Y2019.Day2 do
     vm = VM.create!()
 
     for(noun <- 0..99, verb <- 0..99, do: {noun, verb})
-    |> Enum.find(fn {noun, verb} ->
+    |> Enum.find_value(fn {noun, verb} ->
       VM.run_program(vm, patch_program(prog, noun, verb))
-      VM.peek(vm, 0) == 19690720
+
+      if VM.peek(vm, 0) == 19690720 do
+        100 * noun + verb
+      end
     end)
-    |> case do
-      {noun, verb} -> 100 * noun + verb
-    end
   end
 
 end
