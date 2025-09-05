@@ -121,6 +121,22 @@ defmodule AOC.Intcode do
     end
   end
 
+  @spec get_output(port(), pos_integer()) :: {:ok, [integer()]} | :halt
+  def get_output(pid, count) do
+    Stream.unfold(nil, fn _ ->
+      receive do
+        {^pid, {:output, v}} -> {v, nil}
+        {^pid, :halt} -> nil
+      end
+    end)
+    |> Enum.take(count)
+    |> case do
+      vals when length(vals) == count -> {:ok, vals}
+      _ -> :halt
+    end
+  end
+
+  @spec get_output(port()) :: {:ok, integer()} | :halt
   def get_output(pid) do
     receive do
       {^pid, {:output, v}} -> {:ok, v}
