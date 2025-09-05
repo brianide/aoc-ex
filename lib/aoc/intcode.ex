@@ -1,6 +1,6 @@
 defmodule AOC.Intcode.Helpers do
-  defmacro code, do: (quote do: unsigned-little-8)
-  defmacro value, do: (quote do: signed-little-64)
+  defmacro code, do: (quote do: unsigned-native-8)
+  defmacro value, do: (quote do: signed-native-64)
 end
 
 defmodule AOC.Intcode.Decoder do
@@ -89,7 +89,7 @@ defmodule AOC.Intcode do
   def run_program(pid, prog) do
     drop_stale_messages(pid)
     prog = to_bitstring(prog)
-    length = <<(byte_size(prog) |> div(8))::signed-little-64>>
+    length = <<(byte_size(prog) |> div(8))::value()>>
     Port.command(pid, <<@code_load::code()>> <> length <> prog)
   end
 

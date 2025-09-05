@@ -46,6 +46,13 @@ defmodule AOC.Util.Zipper.ListZipper do
     end
   end
 
+  @spec find_left(zipper(), function()) :: zipper()
+  def find_left!(zip, pred) do
+    case find_left(zip, pred) do
+      {:ok, zip} -> zip
+    end
+  end
+
   @spec find_right(zipper(), function()) :: ({:ok, zipper()} | :error)
   def find_right({_left, []}, _pred), do: :error
 
@@ -57,4 +64,12 @@ defmodule AOC.Util.Zipper.ListZipper do
       find_right(zip, pred)
     end
   end
+
+  @spec find_right(zipper(), function()) :: zipper()
+  def find_right!(zip, pred) do
+    case find_right(zip, pred) do
+      {:ok, zip} -> zip
+    end
+  end
+
 end
