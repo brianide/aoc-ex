@@ -11,9 +11,6 @@ defmodule AOC.Y2019.Day12 do
     AOC.Read.fscan("<x=~d, y=~d, z=~d>\n", input)
   end
 
-  # def add({a, b, c}, {x, y, z}), do: {a + x, b + y, c + z}
-  # def sub({a, b, c}, {x, y, z}), do: {a - x, b - y, c - z}
-
   def step(moons) do
     Enum.map(moons, fn {position, velocity} ->
       Enum.reduce(moons, velocity, fn {other_position, _}, velocity ->
