@@ -3,7 +3,8 @@ defmodule AOC.Y2025.Day3 do
     title: "Lobby",
     url: "https://adventofcode.com/2025/day/3",
     scheme: {:shared, &parse/1, &silver/1, &gold/1},
-    complete: false
+    complete: true,
+    favorite: true
 
   def parse(input) do
     for line <- String.split(input, "\n") do
@@ -13,21 +14,9 @@ defmodule AOC.Y2025.Day3 do
     end
   end
 
-  # def maximize([a, b | bank]), do: maximize(a, b, bank)
-
-  # def maximize(msd, lsd, []), do: msd * 10 + lsd
-
-  # def maximize(msd, lsd, [next | bank]) do
-  #   cond do
-  #     lsd > msd -> maximize(lsd, next, bank)
-  #     next > lsd -> maximize(msd, next, bank)
-  #     :else -> maximize(msd, lsd, bank)
-  #   end
-  # end
-
-  def bump(bank), do: bump(bank, [])
-  def bump([], prev), do: {false, Enum.reverse(prev)}
-  def bump([a, b | bank], prev) when a > b, do: {true, Enum.reverse(prev) ++ [a | bank]}
+  def bump(bank), do: bump(Enum.reverse(bank), [])
+  def bump([], prev), do: {false, prev}
+  def bump([a, b | bank], prev) when a < b, do: {true, Enum.reverse([b | bank]) ++ prev}
   def bump([a | bank], prev), do: bump(bank, [a | prev])
 
   def maximize(size, bank) do
@@ -40,7 +29,6 @@ defmodule AOC.Y2025.Day3 do
         reduce: 0 do acc ->
           acc * 10 + d
         end
-    |> tap(&IO.inspect/1)
   end
 
   def maximize(size, [head | rest] = sel, [next | bank]) do

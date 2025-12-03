@@ -3,7 +3,7 @@ defmodule AOC.Y2025.Day2 do
     title: "Gift Shop",
     url: "https://adventofcode.com/2025/day/2",
     scheme: {:shared, &parse/1, &silver/1, &gold/1},
-    complete: false,
+    complete: true,
     favorite: true
 
   def parse(input) do
