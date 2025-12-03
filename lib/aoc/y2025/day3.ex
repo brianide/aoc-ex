@@ -14,11 +14,21 @@ defmodule AOC.Y2025.Day3 do
     end
   end
 
+  @doc """
+  Evicts the first digit in the list whose value is less than its right neighbor. If the list
+  is in order, does nothing.
+
+  Returns `{true, [...]}` if a digit was evicted, or `{false, [...]}` otherwise.
+  """
   def bump(bank), do: bump(Enum.reverse(bank), [])
+
   def bump([], prev), do: {false, prev}
   def bump([a, b | bank], prev) when a < b, do: {true, Enum.reverse([b | bank]) ++ prev}
   def bump([a | bank], prev), do: bump(bank, [a | prev])
 
+  @doc """
+  Returns the maximum joltage value for a given selection size and battery bank.
+  """
   def maximize(size, bank) do
     {pre, post} = Enum.split(bank, size)
     maximize(size, Enum.reverse(pre), post)
