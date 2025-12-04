@@ -1,5 +1,4 @@
 defmodule AOC.Y2024.Day15 do
-
   use AOC.Solution,
     title: "Warehouse Woes",
     url: "https://adventofcode.com/2024/day/15",
@@ -24,7 +23,7 @@ defmodule AOC.Y2024.Day15 do
 
   def parse(input) do
     [map, dirs] = String.split(input, "\n\n")
-    Tuple.append(parse_map(map), parse_dirs(dirs))
+    Tuple.insert_at(parse_map(map), 3, parse_dirs(dirs))
   end
 
   defp add({r, c}, {dr, dc}), do: {r + dr, c + dc}
@@ -73,7 +72,7 @@ defmodule AOC.Y2024.Day15 do
 
   # defp check_rock(rocks, {r, c}), do: Enum.find([{r, c}, {r, c - 1}], &(&1 in rocks))
 
-  defp push_wide(walls, rocks, pos, dir, reached \\ MapSet.new()) do
+  defp push_wide(walls, rocks, pos, dir, _reached \\ MapSet.new()) do
     next = add(pos, dir)
     offs = add(next, {0, -1})
 

@@ -16,7 +16,7 @@ end
 
 defmodule AOC.Y2015.Day12.JSON do
   @regex ~r<[][}{]|"[^"]+"|-?\d+>
-  def tokenize(str), do: for [s] <- Regex.scan(@regex, str), do: s
+  def tokenize(str), do: for([s] <- Regex.scan(@regex, str), do: s)
 
   def parse_value(["{" | rest]), do: parse_object(rest)
   def parse_value(["[" | rest]), do: parse_array(rest)

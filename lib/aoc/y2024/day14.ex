@@ -44,7 +44,7 @@ defmodule AOC.Y2024.Day14 do
     vals =
       (for y <- 0..(@dims.height - 1),
            x <- 0..(@dims.height - 1),
-           do: if MapSet.member?(cells, {x, y}), do: 0, else: 1)
+           do: if(MapSet.member?(cells, {x, y}), do: 0, else: 1))
       |> Enum.join()
 
     File.write!("_image/day13_#{filenum}.pbm", "P1\n#{@dims.width} #{@dims.height}\n#{vals}")
