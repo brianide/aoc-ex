@@ -14,47 +14,17 @@ defmodule AOC.Y2025.Day3 do
     end
   end
 
-  @doc """
-  Evicts the first digit in the list whose value is less than its right neighbor. If the list
-  is in order, does nothing.
+  def maximize(size, bank), do: maximize([], length(bank) - size, bank)
 
-  Returns `{true, [...]}` if a digit was evicted, or `{false, [...]}` otherwise.
-  """
-  def bump(bank), do: bump(Enum.reverse(bank), [])
-
-  def bump([], prev), do: {false, prev}
-  def bump([a, b | bank], prev) when a < b, do: {true, Enum.reverse([b | bank]) ++ prev}
-  def bump([a | bank], prev), do: bump(bank, [a | prev])
-
-  @doc """
-  Returns the maximum joltage value for a given selection size and battery bank.
-  """
-  def maximize(size, bank) do
-    {pre, post} = Enum.split(bank, size)
-    maximize(size, Enum.reverse(pre), post)
-  end
-
-  def maximize(_size, sel, []) do
-    for d <- Enum.reverse(sel),
-        reduce: 0 do acc ->
-          acc * 10 + d
-        end
-  end
-
-  def maximize(size, [head | rest] = sel, [next | bank]) do
-    {bumped, sel} = bump(sel)
-    cond do
-      bumped -> maximize(size, [next | sel], bank)
-      next > head -> maximize(size, [next | rest], bank)
-      :else -> maximize(size, sel, bank)
-    end
-  end
+  # Base case; truncate stack and convert back into a number
+  def maximize(sel, rems, []), do: sel |> Enum.drop(rems) |> Enum.reverse() |> Enum.reduce(0, &(&1 + &2 * 10))
+  # Pop from selection stack while bank head is larger and removals are left
+  def maximize([sh | sel], rems, [bh | _] = bank) when bh > sh and rems > 0, do: maximize(sel, rems - 1, bank)
+  # Transfer from bank to stack
+  def maximize(sel, rems, [bh | bank]), do: maximize([bh | sel], rems, bank)
 
   def solve(size, input) do
-    for bank <- input,
-        reduce: 0 do acc ->
-          acc + maximize(size, bank)
-        end
+    for bank <- input, reduce: 0, do: (acc -> acc + maximize(size, bank))
   end
 
   def silver(input), do: solve(2, input)
