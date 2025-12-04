@@ -2,7 +2,7 @@ defmodule AOC.Y2025.Day3 do
   use AOC.Solution,
     title: "Lobby",
     url: "https://adventofcode.com/2025/day/3",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    scheme: {:shared, &parse/1, &solve(2, &1), &solve(12, &1)},
     complete: true,
     favorite: true
 
@@ -18,17 +18,14 @@ defmodule AOC.Y2025.Day3 do
 
   # Base case; truncate stack and convert back into a number
   def maximize(sel, rems, []), do: sel |> Enum.drop(rems) |> Enum.reverse() |> Enum.reduce(0, &(&1 + &2 * 10))
+
   # Pop from selection stack while bank head is larger and removals are left
   def maximize([sh | sel], rems, [bh | _] = bank) when bh > sh and rems > 0, do: maximize(sel, rems - 1, bank)
+
   # Transfer from bank to stack
   def maximize(sel, rems, [bh | bank]), do: maximize([bh | sel], rems, bank)
 
   def solve(size, input) do
     for bank <- input, reduce: 0, do: (acc -> acc + maximize(size, bank))
   end
-
-  def silver(input), do: solve(2, input)
-
-  def gold(input), do: solve(12, input)
-
 end
