@@ -53,7 +53,10 @@ defmodule Mix.Tasks.Aoc.Scaff do
     cookie = AOC.Site.cookie()
     path = "lib/aoc/y#{year}"
     exfile = "#{path}/day#{day}.ex"
-    infile = "input/real/#{year}-day#{String.pad_leading(day, 2, "0")}.txt"
+    filename = "#{year}-day#{String.pad_leading(day, 2, "0")}.txt"
+    infile = "input/real/#{filename}"
+    sampfile = "input/sample/#{filename}"
+
     with :ok <- AOC.Util.ensure_dir(path),
          :ok <- AOC.Util.ensure_dir("input/real"),
          {:ok, info} <- AOC.Site.get_day_info(cookie, year, day),
@@ -67,6 +70,8 @@ defmodule Mix.Tasks.Aoc.Scaff do
       else
         Mix.Shell.IO.info("File already exists: #{exfile}")
       end
+
+      File.touch(sampfile, System.os_time(:second))
 
       if not File.exists?(infile) do
         File.write!(infile, input)
