@@ -1,7 +1,7 @@
 defmodule AOC.Solution do
 
   defmacro __using__(opts) do
-    opts = Keyword.validate!(opts, [:title, :url, :scheme, complete: false, favorite: false])
+    opts = Keyword.validate!(opts, [:title, :url, :scheme, complete: false, favorite: false, tags: []])
 
     [url, year, day] = Regex.run(~r"https://adventofcode\.com/(\d+)/day/(\d+)", opts[:url])
     file = "#{year}-day#{String.pad_leading(day, 2, "0")}.txt"
@@ -13,7 +13,8 @@ defmodule AOC.Solution do
         url: unquote(url),
         date: unquote(date),
         complete: unquote(opts[:complete]),
-        favorite: unquote(opts[:favorite])
+        favorite: unquote(opts[:favorite]),
+        tags: unquote(opts[:tags])
       }
 
       def __aoc_run__(opts) do
