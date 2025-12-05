@@ -5,7 +5,8 @@ defmodule AOC.Y2025.Day5 do
     title: "Cafeteria",
     url: "https://adventofcode.com/2025/day/5",
     scheme: {:shared, &parse/1, &silver/1, &gold/1},
-    complete: false
+    complete: true,
+    tags: [:easy, :merge_intervals]
 
   def parse(input) do
     [fresh, avail] = String.split(input, "\n\n")
@@ -14,7 +15,6 @@ defmodule AOC.Y2025.Day5 do
     {Enum.sort(fresh), Enum.sort(avail)}
   end
 
-  @spec count_fresh(any(), any()) :: any()
   def count_fresh(fresh, avail, total \\ 0)
   def count_fresh([], _, total), do: total
   def count_fresh(_, [], total), do: total
@@ -30,11 +30,13 @@ defmodule AOC.Y2025.Day5 do
   def silver({fresh, avail}), do: count_fresh(fresh, avail)
 
   def gold({fresh, _avail}) do
-    Enum.reduce(fresh, [], fn
-      range, [] -> [range]
-      {lo, hi}, [{plo, phi} | rest] when phi >= lo -> [{plo, max(hi, phi)} | rest]
-      range, rest -> [range | rest]
+    add_range = fn {{lo, hi}, acc} -> acc + hi - lo + 1 end
+
+    Enum.reduce(fresh, nil, fn
+      range, nil -> {range, 0}
+      {lo, hi}, {{plo, phi}, total} when phi >= lo -> {{plo, max(hi, phi)}, total}
+      range, acc -> {range, add_range.(acc)}
     end)
-    |> Enum.reduce(0, fn {lo, hi}, acc -> acc + hi - lo + 1 end)
+    |> then(add_range)
   end
 end

@@ -12,14 +12,13 @@ defmodule AOC.Y2025.Day4 do
     end
   end
 
+  @offsets for i <- -1..1, j <- -1..1, i != 0 or j != 0, do: {i, j}
+
   def get_neighbors(rolls, {r, c}) do
-    for i <- -1..1,
-        j <- -1..1,
-        i != 0 or j != 0,
+    for {i, j} <- @offsets,
         p = {r + i, c + j},
-        reduce: [] do
-      acc ->
-        if MapSet.member?(rolls, p), do: [p | acc], else: acc
+        MapSet.member?(rolls, p) do
+      p
     end
   end
 
