@@ -1,10 +1,22 @@
 defmodule AOC.Y2025.Day6 do
+  alias AOC.Y2025.Day6.Silver, as: Silver
+  alias AOC.Y2025.Day6.Gold, as: Gold
+
   use AOC.Solution,
     title: "Trash Compactor",
     url: "https://adventofcode.com/2025/day/6",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1},
-    complete: false
+    scheme: {:separate, &solve(Silver, &1), &solve(Gold, &1)},
+    complete: false,
+    tags: [:medium, :parsing]
 
+  def solve(mod, input) do
+    input
+    |> then(&Kernel.apply(mod, :parse, [&1]))
+    |> then(&Kernel.apply(mod, :solve, [&1]))
+  end
+end
+
+defmodule AOC.Y2025.Day6.Silver do
   def parse_lines(coll \\ [], lines)
 
   def parse_lines(coll, [last]) do
@@ -33,15 +45,34 @@ defmodule AOC.Y2025.Day6 do
     |> parse_lines()
   end
 
-  def silver(input) do
+  def solve(input) do
     for col <- input, {op, vals} = col, reduce: 0 do
       acc ->
         acc + Enum.reduce(vals, op)
     end
   end
+end
 
-  def gold(_input) do
-    "Not implemented"
+defmodule AOC.Y2025.Day6.Gold do
+  def transpose(rows), do: Enum.zip_with(rows, & &1)
+
+  def parse(input) do
+    for(line <- String.split(input, ~r/\n/), do: String.graphemes(line))
+    |> transpose()
+    |> Stream.map(&Enum.join/1)
+    |> Enum.join("\n")
   end
 
+  def solve(input) do
+    for [_, n, op] <- Regex.scan(~r/(\d+)\s*([*+ ])/, input),
+        n = String.to_integer(n),
+        reduce: {0, nil, 0} do
+      {sub, _, total} when op === "+" -> {n, &Kernel.+/2, total + sub}
+      {sub, _, total} when op === "*" -> {n, &Kernel.*/2, total + sub}
+      {sub, op, total} -> {op.(sub, n), op, total}
+    end
+    |> case do
+      {sub, _, total} -> total + sub
+    end
+  end
 end

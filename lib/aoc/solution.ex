@@ -35,6 +35,16 @@ defmodule AOC.Solution do
         end
   end
 
+  @doc "Reads a file, dropping any trailing newlines"
+  def read_file(path) do
+    File.read!(path)
+    |> String.split("\n")
+    |> Enum.reverse()
+    |> Enum.drop_while(&(&1 == ""))
+    |> Enum.reverse()
+    |> Enum.join("\n")
+  end
+
   @doc """
   Creates a solver according to one of several schemes:
 
@@ -65,7 +75,7 @@ defmodule AOC.Solution do
   def run_solution(scheme, part, path)
 
   def run_solution({:separate, silv_fn, gold_fn}, part, path) do
-    raw = File.read!(path) |> String.trim()
+    raw = read_file(path)
 
     :timer.tc(fn ->
       case part do
@@ -77,7 +87,7 @@ defmodule AOC.Solution do
   end
 
   def run_solution({:shared, parse_fn, silv_fn, gold_fn}, part, path) do
-    raw = File.read!(path) |> String.trim()
+    raw = read_file(path)
 
     :timer.tc(fn ->
       parsed = parse_fn.(raw)
@@ -90,7 +100,7 @@ defmodule AOC.Solution do
   end
 
   def run_solution({:once, parse_fn, solve_fn}, part, path) do
-    raw = File.read!(path) |> String.trim()
+    raw = read_file(path)
 
     :timer.tc(fn ->
       {s, g} = raw |> parse_fn.() |> solve_fn.()
@@ -103,7 +113,7 @@ defmodule AOC.Solution do
   end
 
   def run_solution({:chain, parse_fn, silv_fn, gold_fn}, part, path) do
-    raw = File.read!(path) |> String.trim()
+    raw = read_file(path)
 
     :timer.tc(fn ->
       parsed = parse_fn.(raw)
@@ -117,7 +127,7 @@ defmodule AOC.Solution do
   end
 
   def run_solution({:intcode, silv_fn, gold_fn}, part, path) do
-    raw = File.read!(path) |> String.trim()
+    raw = read_file(path)
 
     :timer.tc(fn ->
       prog = (for s <- String.splitter(raw, ","), do: String.to_integer(s))
