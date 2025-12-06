@@ -5,74 +5,81 @@ defmodule AOC.Y2025.Day6 do
   use AOC.Solution,
     title: "Trash Compactor",
     url: "https://adventofcode.com/2025/day/6",
-    scheme: {:separate, &solve(Silver, &1), &solve(Gold, &1)},
-    complete: false,
+    scheme: {:separate, &Silver.solve/1, &Gold.solve/1},
+    complete: true,
     tags: [:medium, :parsing]
-
-  def solve(mod, input) do
-    input
-    |> then(&Kernel.apply(mod, :parse, [&1]))
-    |> then(&Kernel.apply(mod, :solve, [&1]))
-  end
 end
 
 defmodule AOC.Y2025.Day6.Silver do
-  def parse_lines(coll \\ [], lines)
+  import AOC.Read, only: [fscan: 2]
 
-  def parse_lines(coll, [last]) do
-    for [op] <- Regex.scan(~r/\S/, last) do
+  def get_operators(line) do
+    for [op] <- Regex.scan(~r/[*+]/, line) do
       case op do
-        "*" -> &Kernel.*/2
         "+" -> &Kernel.+/2
+        "*" -> &Kernel.*/2
       end
     end
-    |> Enum.zip_with(coll, fn op, col -> {op, col} end)
-  end
-
-  def parse_lines(coll, [line | lines]) do
-    for [i] <- Regex.scan(~r/\d+/, line) do
-      String.to_integer(i)
-    end
-    |> case do
-      row when coll == [] -> Enum.map(row, fn i -> [i] end)
-      row -> Enum.zip_with(row, coll, fn i, col -> [i | col] end)
-    end
-    |> parse_lines(lines)
-  end
-
-  def parse(input) do
-    String.split(input, "\n")
-    |> parse_lines()
   end
 
   def solve(input) do
-    for col <- input, {op, vals} = col, reduce: 0 do
-      acc ->
-        acc + Enum.reduce(vals, op)
-    end
+    String.splitter(input, "\n")
+    |> Enum.reduce(nil, fn
+      line, nil ->
+        fscan("~d", line)
+
+      line, cols ->
+        case fscan("~d", line) do
+          [] ->
+            get_operators(line)
+            |> Enum.zip_reduce(cols, 0, fn op, col, acc -> acc + Enum.reduce(col, op) end)
+
+          vs ->
+            Enum.zip_with(vs, cols, &Kernel.++/2)
+        end
+    end)
   end
 end
 
 defmodule AOC.Y2025.Day6.Gold do
-  def transpose(rows), do: Enum.zip_with(rows, & &1)
+  def read_cols(prev_cols \\ [], next_cols \\ [], [ch | chars]) do
+    {prev, tail} =
+      case prev_cols do
+        [h | t] -> {h, t}
+        _ -> {0, []}
+      end
 
-  def parse(input) do
-    for(line <- String.split(input, ~r/\n/), do: String.graphemes(line))
-    |> transpose()
-    |> Stream.map(&Enum.join/1)
-    |> Enum.join("\n")
+    case ch do
+      ?\n ->
+        read_cols(Enum.reverse(next_cols), [], chars)
+
+      ?\s ->
+        read_cols(tail, [prev | next_cols], chars)
+
+      ch when ch in [?+, ?*] ->
+        tally_cols(prev_cols, [ch | chars])
+
+      ch ->
+        val = prev * 10 + (ch - ?0)
+        next_cols = [val | next_cols]
+        read_cols(tail, next_cols, chars)
+    end
+  end
+
+  def tally_cols(nums, chars, op \\ nil, sub \\ 0, total \\ 0)
+  def tally_cols([], [], _op, sub, total), do: total + sub
+
+  def tally_cols([num | nums], [ch | chars], op, sub, total) do
+    cond do
+      ch === ?* -> tally_cols(nums, chars, &Kernel.*/2, num, total)
+      ch === ?+ -> tally_cols(nums, chars, &Kernel.+/2, num, total)
+      num === 0 -> tally_cols(nums, chars, nil, nil, total + sub)
+      :else -> tally_cols(nums, chars, op, op.(sub, num), total)
+    end
   end
 
   def solve(input) do
-    for [_, n, op] <- Regex.scan(~r/(\d+)\s*([*+ ])/, input),
-        n = String.to_integer(n),
-        reduce: {0, nil, 0} do
-      {sub, _, total} when op === "+" -> {n, &Kernel.+/2, total + sub}
-      {sub, _, total} when op === "*" -> {n, &Kernel.*/2, total + sub}
-      {sub, op, total} -> {op.(sub, n), op, total}
-    end
-    |> case do
-      {sub, _, total} -> total + sub
-    end
+    String.to_charlist(input)
+    |> read_cols()
   end
 end
