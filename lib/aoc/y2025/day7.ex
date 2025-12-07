@@ -2,7 +2,7 @@ defmodule AOC.Y2025.Day7 do
   use AOC.Solution,
     title: "Laboratories",
     url: "https://adventofcode.com/2025/day/7",
-    scheme: {:once, &parse/1, &solve/1},
+    scheme: {:custom, &solve/1},
     complete: true
 
   def drop_line(<<?\n, rest::binary>>), do: rest
@@ -11,28 +11,17 @@ defmodule AOC.Y2025.Day7 do
 
   def parse_line(<<ch, rest::binary>>, splits \\ [], ind \\ 0) do
     case ch do
-      ?S -> {ind, rest |> drop_line() |> drop_line()}
-      ?\n -> {MapSet.new(splits), drop_line(rest)}
+      ?S -> {:start, ind, rest |> drop_line() |> drop_line()}
+      ?\n -> {:line, MapSet.new(splits), drop_line(rest)}
       ?^ -> parse_line(rest, [ind | splits], ind + 1)
       _ -> parse_line(rest, splits, ind + 1)
     end
   end
 
-  def parse_bin(bin, lines \\ []) do
-    case parse_line(bin) do
-      {res, <<>>} ->
-        [start | lines] = Enum.reverse([res | lines])
-        {start, lines}
-      {res, rest} ->
-        parse_bin(rest, [res | lines])
-    end
-  end
+  def tally(beams, <<>>, total), do: {total, Enum.sum_by(beams, &elem(&1, 1))}
 
-  def parse(input), do: parse_bin(input)
-
-  def tally(beams, [], total), do: {total, Enum.sum_by(beams, &elem(&1, 1))}
-
-  def tally(beams, [splits | lines], total) do
+  def tally(beams, bin, total) do
+    {:line, splits, bin} = parse_line(bin)
     for {ind, n} <- beams, reduce: {%{}, 0} do
       {acc, count} ->
         if MapSet.member?(splits, ind) do
@@ -48,9 +37,12 @@ defmodule AOC.Y2025.Day7 do
         end
     end
     |> case do
-      {beams, count} -> tally(beams, lines, total + count)
+      {beams, count} -> tally(beams, bin, total + count)
     end
   end
 
-  def solve({start, lines}), do: tally(%{start => 1}, lines, 0)
+  def solve(input) do
+    {:start, start, rest} = parse_line(input)
+    tally(%{start => 1}, rest, 0)
+  end
 end
