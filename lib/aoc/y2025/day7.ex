@@ -2,7 +2,7 @@ defmodule AOC.Y2025.Day7 do
   use AOC.Solution,
     title: "Laboratories",
     url: "https://adventofcode.com/2025/day/7",
-    scheme: {:shared, &parse/1, &silver/1, &gold/1},
+    scheme: {:once, &parse/1, &solve/1},
     complete: false
 
   def parse(input) do
@@ -26,28 +26,30 @@ defmodule AOC.Y2025.Day7 do
     end
   end
 
-  def tally(_beams, [], total), do: total
+  def tally(beams, [], total), do: {beams, total}
 
   def tally(beams, [splits | lines], total) do
-    for b <- beams, reduce: {[], 0} do
+    for {ind, n} <- beams, reduce: {[], 0} do
       {acc, count} ->
-        if MapSet.member?(splits, b) do
-          {[b - 1, b + 1 | acc], count + 1}
+        if MapSet.member?(splits, ind) do
+          left = {ind - 1, n}
+          right = {ind + 1, n}
+          {[left, right | acc], count + 1}
         else
-          {[b | acc], count}
+          {[{ind, n} | acc], count}
         end
     end
     |> case do
-      {beams, count} -> MapSet.new(beams) |> tally(lines, total + count)
+      {beams, count} ->
+        for {ind, n} <- beams, reduce: %{} do
+          acc -> Map.update(acc, ind, n, &(&1 + n))
+        end
+        |> tally(lines, total + count)
     end
   end
 
-  def silver({start, lines}) do
-    tally([start], lines, 0)
+  def solve({start, lines}) do
+    {a, b} = tally(%{start => 1}, lines, 0)
+    {Enum.sum_by(a, fn {_, v} -> v end), b}
   end
-
-  def gold(_input) do
-    "Not implemented"
-  end
-
 end
