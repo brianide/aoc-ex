@@ -6,11 +6,12 @@ defmodule AOC.Y2025.Day7 do
     complete: true
 
   def parse(input) do
-    for line <- String.split(input) |> Stream.drop(1) |> Stream.drop_every(2),
+    for line <- String.split(input) |> Stream.take_every(2),
         line = String.to_charlist(line),
         reduce: [] do
       acc ->
         Enum.zip_reduce(line, Stream.iterate(0, &(&1 + 1)), MapSet.new(), fn
+          ?S, ind, _ -> ind
           ?^, ind, acc -> MapSet.put(acc, ind)
           _, _, acc -> acc
         end)
@@ -20,7 +21,7 @@ defmodule AOC.Y2025.Day7 do
     end
     |> Enum.reverse()
     |> case do
-      [start | _] = lines -> {Enum.at(start, 0), lines}
+      [start | lines] -> {start, lines}
     end
   end
 
