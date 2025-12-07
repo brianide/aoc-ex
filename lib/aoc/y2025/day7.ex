@@ -3,11 +3,11 @@ defmodule AOC.Y2025.Day7 do
     title: "Laboratories",
     url: "https://adventofcode.com/2025/day/7",
     scheme: {:custom, &solve/1},
+    newline: :preserve,
     complete: true
 
   def drop_line(<<?\n, rest::binary>>), do: rest
   def drop_line(<<_, rest::binary>>), do: drop_line(rest)
-  def drop_line(<<>>), do: <<>>
 
   def parse_line(<<ch, rest::binary>>, splits \\ [], ind \\ 0) do
     case ch do

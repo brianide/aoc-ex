@@ -1,11 +1,12 @@
 defmodule AOC.Solution do
 
   defmacro __using__(opts) do
-    opts = Keyword.validate!(opts, [:title, :url, :scheme, complete: false, favorite: false, tags: []])
+    opts = Keyword.validate!(opts, [:title, :url, :scheme, newline: :trim, complete: false, favorite: false, tags: []])
 
     [url, year, day] = Regex.run(~r"https://adventofcode\.com/(\d+)/day/(\d+)", opts[:url])
     file = "#{year}-day#{String.pad_leading(day, 2, "0")}.txt"
     date = {String.to_integer(year), String.to_integer(day)}
+    trim = opts[:newline] === :trim
 
     quote do
       def __aoc_meta__, do: %{
@@ -19,7 +20,7 @@ defmodule AOC.Solution do
 
       def __aoc_run__(opts) do
         path = Path.join([opts.input_root, unquote(file)])
-        apply(unquote(__MODULE__), :run_solution, [unquote(opts[:scheme]), opts.part, path])
+        apply(unquote(__MODULE__), :run_solution, [unquote(opts[:scheme]), opts.part, path, unquote(trim)])
       end
     end
   end
@@ -43,6 +44,11 @@ defmodule AOC.Solution do
     |> Enum.drop_while(&(&1 == ""))
     |> Enum.reverse()
     |> Enum.join("\n")
+  end
+
+  def run_solution(scheme, part, path, trim) do
+    raw = if trim, do: read_file(path), else: File.read!(path)
+    run_solution(scheme, part, raw)
   end
 
   @doc """
@@ -80,9 +86,7 @@ defmodule AOC.Solution do
   """
   def run_solution(scheme, part, path)
 
-  def run_solution({:custom, solve_fn}, part, path) do
-    raw = read_file(path)
-
+  def run_solution({:custom, solve_fn}, part, raw) do
     :timer.tc(fn ->
       {s, g} = raw |> solve_fn.()
       case part do
@@ -93,9 +97,7 @@ defmodule AOC.Solution do
     end)
   end
 
-  def run_solution({:separate, silv_fn, gold_fn}, part, path) do
-    raw = read_file(path)
-
+  def run_solution({:separate, silv_fn, gold_fn}, part, raw) do
     :timer.tc(fn ->
       case part do
         :silver -> silv_fn.(raw)
@@ -105,9 +107,7 @@ defmodule AOC.Solution do
     end)
   end
 
-  def run_solution({:shared, parse_fn, silv_fn, gold_fn}, part, path) do
-    raw = read_file(path)
-
+  def run_solution({:shared, parse_fn, silv_fn, gold_fn}, part, raw) do
     :timer.tc(fn ->
       parsed = parse_fn.(raw)
       case part do
@@ -118,9 +118,7 @@ defmodule AOC.Solution do
     end)
   end
 
-  def run_solution({:once, parse_fn, solve_fn}, part, path) do
-    raw = read_file(path)
-
+  def run_solution({:once, parse_fn, solve_fn}, part, raw) do
     :timer.tc(fn ->
       {s, g} = raw |> parse_fn.() |> solve_fn.()
       case part do
@@ -131,9 +129,7 @@ defmodule AOC.Solution do
     end)
   end
 
-  def run_solution({:chain, parse_fn, silv_fn, gold_fn}, part, path) do
-    raw = read_file(path)
-
+  def run_solution({:chain, parse_fn, silv_fn, gold_fn}, part, raw) do
     :timer.tc(fn ->
       parsed = parse_fn.(raw)
       {a, acc} = silv_fn.(parsed)
@@ -145,9 +141,7 @@ defmodule AOC.Solution do
     end)
   end
 
-  def run_solution({:intcode, silv_fn, gold_fn}, part, path) do
-    raw = read_file(path)
-
+  def run_solution({:intcode, silv_fn, gold_fn}, part, raw) do
     :timer.tc(fn ->
       prog = (for s <- String.splitter(raw, ","), do: String.to_integer(s))
 
