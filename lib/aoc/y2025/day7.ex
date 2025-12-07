@@ -5,19 +5,20 @@ defmodule AOC.Y2025.Day7 do
     scheme: {:once, &parse/1, &solve/1},
     complete: true
 
+  def parse_line(splits \\ [], ind \\ 0, chars) do
+    case chars do
+      [] -> MapSet.new(splits)
+      [?S | _] -> ind
+      [?^ | rest] -> parse_line([ind | splits], ind + 1, rest)
+      [_ | rest] -> parse_line(splits, ind + 1, rest)
+    end
+  end
+
   def parse(input) do
     for line <- String.split(input) |> Stream.take_every(2),
         line = String.to_charlist(line),
         reduce: [] do
-      acc ->
-        Enum.zip_reduce(line, Stream.iterate(0, &(&1 + 1)), MapSet.new(), fn
-          ?S, ind, _ -> ind
-          ?^, ind, acc -> MapSet.put(acc, ind)
-          _, _, acc -> acc
-        end)
-        |> case do
-          inds -> [inds | acc]
-        end
+      acc -> [parse_line(line) | acc]
     end
     |> Enum.reverse()
     |> case do
