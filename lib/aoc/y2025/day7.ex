@@ -5,26 +5,30 @@ defmodule AOC.Y2025.Day7 do
     scheme: {:once, &parse/1, &solve/1},
     complete: true
 
-  def parse_line(splits \\ [], ind \\ 0, chars) do
-    case chars do
-      [] -> MapSet.new(splits)
-      [?S | _] -> ind
-      [?^ | rest] -> parse_line([ind | splits], ind + 1, rest)
-      [_ | rest] -> parse_line(splits, ind + 1, rest)
+  def drop_line(<<?\n, rest::binary>>), do: rest
+  def drop_line(<<_, rest::binary>>), do: drop_line(rest)
+  def drop_line(<<>>), do: <<>>
+
+  def parse_line(<<ch, rest::binary>>, splits \\ [], ind \\ 0) do
+    case ch do
+      ?S -> {ind, rest |> drop_line() |> drop_line()}
+      ?\n -> {MapSet.new(splits), drop_line(rest)}
+      ?^ -> parse_line(rest, [ind | splits], ind + 1)
+      _ -> parse_line(rest, splits, ind + 1)
     end
   end
 
-  def parse(input) do
-    for line <- String.split(input) |> Stream.take_every(2),
-        line = String.to_charlist(line),
-        reduce: [] do
-      acc -> [parse_line(line) | acc]
-    end
-    |> Enum.reverse()
-    |> case do
-      [start | lines] -> {start, lines}
+  def parse_bin(bin, lines \\ []) do
+    case parse_line(bin) do
+      {res, <<>>} ->
+        [start | lines] = Enum.reverse([res | lines])
+        {start, lines}
+      {res, rest} ->
+        parse_bin(rest, [res | lines])
     end
   end
+
+  def parse(input), do: parse_bin(input)
 
   def tally(beams, [], total), do: {total, Enum.sum_by(beams, &elem(&1, 1))}
 
