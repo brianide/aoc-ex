@@ -6,37 +6,35 @@ defmodule AOC.Y2025.Day7 do
     complete: false
 
   def parse(input) do
-    [a, input] = String.split(input, "S")
-    start = String.length(a)
-
-    [_ | rest] = String.split(input, "\n")
-    for line <- rest, line = String.to_charlist(line), reduce: [] do
+    for line <- String.split(input) |> Stream.drop(1) |> Stream.drop_every(2),
+        line = String.to_charlist(line),
+        reduce: [] do
       acc ->
         Enum.zip_reduce(line, Stream.iterate(0, &(&1 + 1)), [], fn
           ?^, ind, acc -> [ind | acc]
-          _ch, _ind, acc -> acc
+          _, _, acc -> acc
         end)
         |> case do
-          [] -> acc
           inds -> [MapSet.new(inds) | acc]
         end
     end
+    |> Enum.reverse()
     |> case do
-      lines -> {start, Enum.reverse(lines)}
+      [start | _] = lines -> {Enum.at(start, 0), lines}
     end
   end
 
-  def tally(beams, [], total), do: {beams, total}
+  def tally(beams, [], total), do: {total, Enum.sum_by(beams, &elem(&1, 1))}
 
   def tally(beams, [splits | lines], total) do
-    for {ind, n} <- beams, reduce: {[], 0} do
+    for {ind, n} = beam <- beams, reduce: {[], 0} do
       {acc, count} ->
         if MapSet.member?(splits, ind) do
           left = {ind - 1, n}
           right = {ind + 1, n}
           {[left, right | acc], count + 1}
         else
-          {[{ind, n} | acc], count}
+          {[beam | acc], count}
         end
     end
     |> case do
@@ -48,8 +46,5 @@ defmodule AOC.Y2025.Day7 do
     end
   end
 
-  def solve({start, lines}) do
-    {a, b} = tally(%{start => 1}, lines, 0)
-    {Enum.sum_by(a, fn {_, v} -> v end), b}
-  end
+  def solve({start, lines}), do: tally(%{start => 1}, lines, 0)
 end
