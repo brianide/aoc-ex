@@ -25,7 +25,7 @@ defmodule Mix.Tasks.Aoc.Solve do
 
         count ->
           for _ <- 1..count, reduce: {0, nil} do {time, _res} ->
-            {t, r} = Task.async(fn -> apply(mod, :__aoc_run__, run_opts) end) |> Task.await()
+            {t, r} = Task.async(fn -> apply(mod, :__aoc_run__, run_opts) end) |> Task.await(:infinity)
             {time + t, r}
           end
           |> case do {time, res} ->
@@ -91,6 +91,7 @@ defmodule Mix.Tasks.Aoc.Edit do
 
   @shortdoc "Edit the file for the selected day"
   def run([year, day]) do
-    System.cmd("code", ["lib/aoc/y#{year}/day#{day}.ex", "input/real/#{year}-day#{String.pad_leading(day, 2, "0")}.txt"])
+    filename = "#{year}-day#{String.pad_leading(day, 2, "0")}.txt"
+    System.cmd("code", ["lib/aoc/y#{year}/day#{day}.ex", "input/sample/#{filename}", "input/real/#{filename}"])
   end
 end
