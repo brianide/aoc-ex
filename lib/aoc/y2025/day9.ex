@@ -8,28 +8,33 @@ defmodule AOC.Y2025.Day9 do
     complete: false
 
   def parse(input) do
-    for [x, y] <- fscan("~d,~d\n", input), do: {x, y}
-  end
-
-  def combinations(acc \\ [], list)
-  def combinations(acc, [_]), do: Enum.concat(acc)
-
-  def combinations(acc, [a | rest]) do
-    res = for(b <- rest, do: {a, b})
-    combinations([res | acc], rest)
+    for [x, y] <- fscan("~d,~d\n", input),
+        p = {x, y},
+        reduce: nil do
+      nil ->
+        {[p], [], []}
+      {[prev | _] = list, segs, combs} ->
+        combs = for(b <- list, do: {p, b}) ++ combs
+        list = [p | list]
+        segs = [{p, prev} | segs]
+        {list, segs, combs}
+    end
+    |> Tuple.delete_at(0)
   end
 
   def area({{x, y}, {i, j}}), do: (abs(i - x) + 1) * (abs(j - y) + 1)
 
-  def silver(input) do
-    input
-    |> combinations()
-    |> Stream.map(&area/1)
-    |> Enum.max()
-    |> inspect(charlists: :as_lists)
+  def silver({_segs, combs}) do
+    for comb <- combs, reduce: -1 do
+      acc -> max(acc, area(comb))
+    end
   end
 
-  def gold(_input) do
+  def dist({{x, y}, {i, j}}), do: max(abs(i - x), abs(j - y))
+
+  def gold({segs, combs}) do
+    segs = segs |> Enum.sort_by(&dist/1, :desc)
+    # |> inspect(charlists: :as_lists)
     "Not implemented"
   end
 
