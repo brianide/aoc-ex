@@ -79,6 +79,7 @@ defmodule AOC.Y2025.Day2 do
         end
   end
 
+  def divisors_for_length(1, mem), do: {[1], mem}
   def divisors_for_length(len, mem) when is_map_key(mem, len), do: {mem[len], mem}
 
   def divisors_for_length(len, mem) do
