@@ -30,13 +30,13 @@ defmodule AOC.Y2025.Day10 do
     end
   end
 
-  def read_buttons(buttons \\ [], <<ch, rest::binary>> = bin) do
+  def read_buttons(buttons \\ [], <<ch, _::binary>> = bin) do
     case ch do
       ?( ->
         {button, rest} = read_button(bin)
         [button | buttons] |> read_buttons(rest)
       ?{ ->
-        {buttons, linefeed(rest)}
+        {buttons, bin}
     end
   end
 
@@ -50,13 +50,24 @@ defmodule AOC.Y2025.Day10 do
     end
   end
 
+  def read_joltage(vals \\ [], <<ch, rest::binary>>) do
+    case ch do
+      ?} ->
+        {Enum.reverse(vals), linefeed(rest)}
+      _ ->
+        {val, rest} = read_number(rest)
+        [val | vals] |> read_joltage(rest)
+    end
+  end
+
   def read_configs(configs \\ [], bin)
   def read_configs(configs, <<>>), do: Enum.reverse(configs)
 
   def read_configs(configs, bin) do
     {lights, rest} = skip_char(bin) |> read_lights()
     {buttons, rest} = read_buttons(rest)
-    [{lights, buttons} | configs]
+    {jolts, rest} = read_joltage(rest)
+    [{lights, buttons, jolts} | configs]
     |> read_configs(rest)
   end
 
@@ -73,15 +84,15 @@ defmodule AOC.Y2025.Day10 do
     for button <- buttons, do: press_button(state, button)
   end
 
-  def search(init, buttons), do: PQ.new() |> PQ.put(0, init) |> search(buttons, MapSet.new([init]))
+  def search(init, neighbor_fn, buttons), do: PQ.new() |> PQ.put(0, init) |> search(neighbor_fn, buttons, MapSet.new([init]))
 
-  def search(queue, buttons, visited) do
+  def search(queue, neighbor_fn, buttons, visited) do
     {{dist, next}, queue} = PQ.pop!(queue)
     if Enum.all?(next, &(&1 === 0)) do
       dist
     else
       dist = dist + 1
-      for n <- neighbors(next, buttons),
+      for n <- neighbor_fn.(next, buttons),
           not MapSet.member?(visited, n),
           reduce: {queue, visited} do
         {queue, visited} ->
@@ -90,19 +101,34 @@ defmodule AOC.Y2025.Day10 do
           {queue, visited}
       end
       |> case do
-        {queue, visited} -> search(queue, buttons, visited)
+        {queue, visited} -> search(queue, neighbor_fn, buttons, visited)
       end
     end
   end
 
   def silver(input) do
-    for {init, buttons} <- input, reduce: 0 do
-      acc -> acc + search(init, buttons)
+    for {init, buttons, _} <- input, reduce: 0 do
+      acc -> acc + search(init, &neighbors/2, buttons)
     end
   end
 
-  def gold(_input) do
-    "Not implemented"
+  def press_button_2(acc \\ [], ind \\ 0, state, toggles)
+  def press_button_2(acc, _ind, state, []), do: Enum.reverse(acc) ++ state
+  def press_button_2(acc, ind, [s | state], [t | toggles]) when ind === t, do: press_button_2([s - 1 | acc], ind + 1, state, toggles)
+  def press_button_2(acc, ind, [s | state], toggles), do: press_button_2([s | acc], ind + 1, state, toggles)
+
+  def neighbors_2(state, buttons) do
+    for button <- buttons,
+        state = press_button_2(state, button),
+        Enum.all?(state, &(&1 >= 0)) do
+      state
+    end
+  end
+
+  def gold(input) do
+    for {_, buttons, jolts} <- input, reduce: 0 do
+      acc -> acc + search(jolts, &neighbors_2/2, buttons)
+    end
   end
 
 end
