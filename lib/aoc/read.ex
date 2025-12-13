@@ -17,6 +17,11 @@ defmodule AOC.Read do
     |> Enum.reverse()
   end
 
+  def skip_lines(bin, n \\ 1)
+  def skip_lines(bin, 0), do: bin
+  def skip_lines(<<?\n, rest::binary>>, n), do: skip_lines(rest, n - 1)
+  def skip_lines(<<_, rest::binary>>, n), do: skip_lines(rest, n)
+
   def fscan(fmt, seqs, str, coll)
 
   def fscan(fmt, seqs, str, coll) when is_binary(str) do
